@@ -1,14 +1,15 @@
-# Scripts
+<h1 align="center">Scripts</h1>
+<p align="center">
+  <i>"Simplify your life and streamline your workflow with our collection of usefull scripts"</i>
+   <br/>
+  <img width="120" src="https://i.imgur.com/j3XbVfG.png" />
+  <br/>
+  <b><a href="https://discord.gg/uyAmNjqvp9">💬Discord</a></b> | <b><a href="https://wiki.itgoit.nl">📚Documentation</a></b> 
+  <br/><br/>
+
+# About
 
 This repository contains scripts for automation, backups, and other helpful utilities to make your life easier. Whether you are a system administrator, developer, or just someone who wants to automate repetitive tasks, this repository has scripts that can help.
-
-## Table of Contents
-- [Features](#Features)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
-
 
 ## Features
 
