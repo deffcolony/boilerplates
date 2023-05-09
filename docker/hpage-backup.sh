@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Set the hpage container name
+CONTAINER_NAME="hpage"
+
+# Set the backup directory
+BACKUP_DIR="/home/username/docker/backups/hpage"
+
+# Create a new directory for the backup
+BACKUP_DATE=$(date +"%Y-%m-%d_%H-%M-%S")
+BACKUP_PATH="$BACKUP_DIR/$BACKUP_DATE"
+mkdir -p "$BACKUP_PATH"
+
+# Copy the hpage directory's from the container to the backup directory
+docker cp "$CONTAINER_NAME":/app/config "$BACKUP_PATH"
+docker cp "$CONTAINER_NAME":/app/public/icons "$BACKUP_PATH"
+docker cp "$CONTAINER_NAME":/app/public/images "$BACKUP_PATH"
+
+# Compress the backup directory
+tar -czf "$BACKUP_PATH.tar.gz" -C "$BACKUP_DIR" "$BACKUP_DATE"
+
+# Remove the uncompressed backup directory
+rm -rf "$BACKUP_PATH"
+
+# Prune old backups (keep the last 7 days)
+find "$BACKUP_DIR" -name "*.tar.gz" -type f -mtime +7 -delete
