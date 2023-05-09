@@ -1,17 +1,17 @@
 #!/bin/bash
 
-# Set the Portainer container name
-CONTAINER_NAME="portainer"
+# Set the vaultwarden container name
+CONTAINER_NAME="vaultwarden"
 
 # Set the backup directory
-BACKUP_DIR="/home/gebruikersnaam/backups/portainer"
+BACKUP_DIR="/home/gebruikersnaam/backups/vaultwarden"
 
 # Create a new directory for the backup
 BACKUP_DATE=$(date +"%Y-%m-%d_%H-%M-%S")
 BACKUP_PATH="$BACKUP_DIR/$BACKUP_DATE"
 mkdir -p "$BACKUP_PATH"
 
-# Copy the Portainer data directory from the container to the backup directory
+# Copy the vaultwarden directory's from the container to the backup directory
 docker cp "$CONTAINER_NAME":/data "$BACKUP_PATH"
 
 # Compress the backup directory
@@ -22,4 +22,3 @@ rm -rf "$BACKUP_PATH"
 
 # Prune old backups (keep the last 7 days)
 find "$BACKUP_DIR" -name "*.tar.gz" -type f -mtime +7 -delete
-.

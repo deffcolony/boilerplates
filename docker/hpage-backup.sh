@@ -4,7 +4,7 @@
 CONTAINER_NAME="hpage"
 
 # Set the backup directory
-BACKUP_DIR="/home/username/docker/backups/hpage"
+BACKUP_DIR="/home/gebruikersnaam/backups/hpage"
 
 # Create a new directory for the backup
 BACKUP_DATE=$(date +"%Y-%m-%d_%H-%M-%S")
