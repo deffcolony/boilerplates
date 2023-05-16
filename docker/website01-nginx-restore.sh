@@ -1,16 +1,20 @@
 #!/bin/bash
 
+# Define colors
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+RED='\033[0;31m'
+NC='\033[0m'
+
 # Set the website01-nginx container name
 CONTAINER_NAME="website01-nginx"
-
-# Stop the website01-nginx container
-docker stop "$CONTAINER_NAME"
 
 # Set the backup directory
 BACKUP_DIR="/media/disk/hdd01/backups/website01-nginx"
 
 # List available backups
-echo "Please choose the backup you wish to restore:"
+echo -e "${YELLOW}Please choose a backup you want to restore:${NC}"
 BACKUP_FILES=( $(ls -1 "$BACKUP_DIR") )
 for i in "${!BACKUP_FILES[@]}"; do
   echo "$((i+1)). ${BACKUP_FILES[$i]}"
@@ -22,7 +26,7 @@ attempts=0
 
 while true; do
   # Prompt user to select a backup file
-  read -p "Enter the number of the backup file to restore: " CHOICE
+  read -p "Enter backup number: " CHOICE
 
   # Check if backup file number is not empty and is valid
   if [ -z "$CHOICE" ]; then
@@ -44,6 +48,8 @@ while true; do
     mkdir -p "$TEMP_DIR"
     tar -xzf "$BACKUP_FILE_PATH" -C "$TEMP_DIR"
 
+    # Stop the website01-nginx container
+    docker stop "$CONTAINER_NAME"
 
     # Restore the website01-nginx directory's from the backup directory
     docker cp "$TEMP_DIR/$(basename "$BACKUP_FILE_PATH" .tar.gz)/html" "$CONTAINER_NAME":/usr/share/nginx/
