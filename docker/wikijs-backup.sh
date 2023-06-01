@@ -13,7 +13,7 @@ BACKUP_PATH="$BACKUP_DIR/$BACKUP_DATE"
 mkdir -p "$BACKUP_PATH"
 
 # Copy the wikijs directory's from the container to the backup directory
-docker exec "$DB_CONTAINER_NAME" pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc -W "$POSTGRES_PASSWORD" > "$BACKUP_PATH/wiki-db.dump"
+docker exec "$DB_CONTAINER_NAME" pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc -W "$POSTGRES_PASSWORD" > "$BACKUP_PATH/wikijs-db.dump"
 
 
 # Compress the backup directory
