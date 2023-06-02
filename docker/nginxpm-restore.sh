@@ -7,15 +7,14 @@ BLUE='\033[0;34m'
 RED='\033[0;31m'
 NC='\033[0m'
 
-# Set the wikijs container name
-CONTAINER_NAME="wikijs"
-DB_CONTAINER_NAME="wikijs-postgres"
+# Set the nginxpm container name
+CONTAINER_NAME="nginxpm"
 
 # Set the backup directory
-BACKUP_DIR="/home/gebruikersnaam/docker/backups/wikijs"
+BACKUP_DIR="/home/gebruikersnaam/docker/backups/nginxpm"
 
 # Set the directory where the host volumes are mounted
-HOST_VOLUME_DIR="/home/gebruikersnaam/docker/wikijs"
+HOST_VOLUME_DIR="/home/gebruikersnaam/docker/nginxpm"
 
 # List available backups
 echo -e "${YELLOW}Please choose a backup you want to restore:${NC}"
@@ -48,25 +47,21 @@ while true; do
     fi
 
     # Extract the backup to a temporary directory
-    TEMP_DIR="/tmp/wikijs-restore"
+    TEMP_DIR="/tmp/nginxpm-restore"
     mkdir -p "$TEMP_DIR"
     tar -xzf "$BACKUP_FILE_PATH" -C "$TEMP_DIR"
 
-    # Stop the wikijs container
+    # Stop the nginxpm container
     docker stop "$CONTAINER_NAME"
 
     # Copy the backup files to the host volume directory
-    cp -r "$TEMP_DIR/$(basename "$BACKUP_FILE_PATH" .tar.gz)/config" "$HOST_VOLUME_DIR"
-    cp -r "$TEMP_DIR/$(basename "$BACKUP_FILE_PATH" .tar.gz)/db-data" "$HOST_VOLUME_DIR"
-
-    # Restore the database from the SQL dump file
-    docker exec -i "$DB_CONTAINER_NAME" pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc -C -W < "$TEMP_DIR/$(basename "$BACKUP_FILE_PATH" .tar.gz)/wikijs-db.dump"
-
+    cp -r "$TEMP_DIR/$(basename "$BACKUP_FILE_PATH" .tar.gz)/data" "$HOST_VOLUME_DIR"
+    cp -r "$TEMP_DIR/$(basename "$BACKUP_FILE_PATH" .tar.gz)/letsencrypt" "$HOST_VOLUME_DIR"
 
     # Remove the temporary directory
     rm -rf "$TEMP_DIR"
     
-    # Start the wikijs container
+    # Start the nginxpm container
     docker start "$CONTAINER_NAME"
 
     echo "Restore completed successfully."
