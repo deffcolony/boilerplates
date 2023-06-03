@@ -1,0 +1,250 @@
+version: "3"
+
+services:
+# --- Dolibarr Image
+  web:
+    image: tuxgasy/dolibarr
+    container_name: dolibarr
+    environment:
+      DOLI_DB_HOST: mariadb
+      DOLI_DB_USER: dolibarr
+      DOLI_DB_PASSWORD: welkom123
+      DOLI_DB_NAME: dolibarr
+      DOLI_ADMIN_LOGIN: admin
+      DOLI_ADMIN_PASSWORD: welkom123
+      DOLI_URL_ROOT: 'http://localhost'
+      PHP_INI_DATE_TIMEZONE: 'Europe/Amsterdam'
+    volumes:
+      - ./dolibarr/documents:/var/www/documents
+      - ./dolibarr/html/custom:/var/www/html/custom
+    ports:
+      - "8200:80"
+    restart: unless-stopped
+    depends_on:
+      - mariadb
+    networks:
+      - productivity
+
+# --- Dolibarr MariaDB
+  dolibarr-mariadb:
+    image: mariadb:latest
+    container_name: dolibarr-mariadb
+    environment:
+      MYSQL_USER: dolibarr
+      MYSQL_PASSWORD: welkom123
+      MYSQL_ROOT_PASSWORD: welkom123
+      MYSQL_DATABASE: dolibarr
+    volumes:
+      - ./dolibarr/mysql:/var/lib/mysql
+    restart: unless-stopped
+    networks:
+      - productivity
+
+
+# --- GLPI MariaDB
+  glpi-mariadb:
+    image: mariadb:10.7
+    container_name: glpi-mariadb
+    environment:
+      MARIADB_ROOT_PASSWORD: Wwelkom123!
+      MARIADB_DATABASE: glpidb
+      MARIADB_USER: mdict
+      MARIADB_PASSWORD: Welkom123!
+    volumes:
+      - ./glpi/mysql:/var/lib/mysql
+    restart: unless-stopped
+    networks:
+      - productivity
+
+# --- GLPI Image
+  glpi:
+    image: diouxx/glpi
+    container_name: glpi
+    environment:
+      TIMEZONE: Europe/Amsterdam
+    volumes:
+      - ./glpi/data:/var/www/html/glpi
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "8222:80"
+    restart: unless-stopped
+    networks:
+      - productivity
+
+
+# --- Wiki.js Image
+  wikijs:
+    image: ghcr.io/requarks/wiki:2
+    container_name: wikijs
+    environment:
+      DB_TYPE: postgres
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: wikijs
+      DB_PASS: wikijsrocks
+      DB_NAME: wiki
+    ports:
+      - "8141:3000"
+    restart: unless-stopped
+    depends_on:
+      - db
+    networks:
+      - productivity
+
+# --- Wiki.js postgres
+  wikijs-postgres:
+    image: postgres:11-alpine
+    container_name: wikijs-postgres
+    environment:
+      POSTGRES_DB: wiki
+      POSTGRES_PASSWORD: wikijsrocks
+      POSTGRES_USER: wikijs
+    logging:
+      driver: "none"
+    volumes:
+      - ./wikijs/db-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - productivity
+
+
+# --- LinkAce Image with PHP 7.4 and nginx
+  linkace:
+    image: linkace/linkace:simple
+    container_name: linkace
+    volumes:
+      - ./linkace/logs:/app/storage/logs
+      - ./.env:/app/.env
+    ports:
+      - 8136:80
+    restart: unless-stopped
+    depends_on:
+      - db
+    networks:
+      - productivity
+
+# --- Linkace MariaDB
+  linkace-mariadb:
+    image: mariadb:10.5
+    container_name: linkace-mariadb
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_bin
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+    volumes:
+      - ./linkace/mysql:/var/lib/mysql
+    restart: unless-stopped
+    networks:
+      - productivity
+
+
+
+# --- Seafile Image
+  seafile:
+    image: seafileltd/seafile-mc:latest
+    container_name: seafile
+    environment:
+      DB_HOST: db
+      DB_ROOT_PASSWD: samereallyreallystrongpassword
+      TIME_ZONE: Europe/Amsterdam
+#      SEAFILE_ADMIN_EMAIL: me@example.com
+#      SEAFILE_ADMIN_PASSWORD: asecret
+    volumes:
+      - ./seafile/seafile-data:/shared
+    ports:
+      - "8134:80"
+    restart: unless-stopped
+    depends_on:
+      - db
+      - memcached
+    networks:
+      - productivity
+
+# --- Seafile mysql
+  seafile-mysql:
+    image: mariadb:10.5
+    container_name: seafile-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: reallyreallystrongpassword
+      MYSQL_LOG_CONSOLE: true
+    volumes:
+      - ./seafile/seafile-mysql/db:/var/lib/mysql
+    restart: unless-stopped
+    networks:
+      - productivity
+
+# --- Seafile memcached
+  seafile-memcached:
+    image: memcached:1.6
+    container_name: seafile-memcached
+    command: memcached -m 256
+    restart: unless-stopped
+    networks:
+      - productivity
+
+
+# --- Pwndrop Image
+  pwndrop:
+    image: lscr.io/linuxserver/pwndrop:latest
+    container_name: pwndrop
+    environment:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: "Europe/Amsterdam"
+      SECRET_PATH: "/pwndrop" # optional
+    volumes:
+      - ./pwndrop/config:/config
+    ports:
+      - "8133:8080"
+    restart: unless-stopped
+    networks:
+      - productivity
+
+
+# --- GitLab Runner Image
+  gitlab-runner:
+    image: gitlab/gitlab-runner:alpine
+    container_name: gitlab-runner
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./gitlab/gitlab-runner:/etc/gitlab-runner
+    restart: unless-stopped
+    depends_on:
+      - web
+    networks:
+      - productivity
+
+# --- GitLab Image
+  gitlab:
+    image: 'gitlab/gitlab-ce:latest'
+    container_name: gitlab-ce
+    hostname: 'gitlab.example.com'
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'https://gitlab.example.com'
+        # Add any other gitlab.rb configuration here, each on its own line
+    volumes:
+      - ./gitlab/config:/etc/gitlab
+      - ./gitlab/logs:/var/log/gitlab
+      - ./gitlab/data:/var/opt/gitlab
+    ports:
+      - '8225:80'
+      - '8226:443'
+    restart: unless-stopped
+    networks:
+      - productivity
+
+
+networks:
+  productivity:
+    driver: bridge
+    scope: local
+    attachable: true
+    internal: false
+    ipam:
+      config:
+        - subnet: 172.40.0.0/16 # CHANGE THE SUBNET TO YOUR OWN PREFERRED RANGE!!!
+          gateway: 172.40.0.1 # GATEWAY GOES WITH THE SUBNET!!!

@@ -1,0 +1,172 @@
+version: "3.8"
+
+# --- Jellyfin Image
+services:
+  jellyfin:
+    container_name: jellyfin
+    image: jellyfin/jellyfin:latest
+    devices:
+      - /dev/dri:/dev/dri
+    environment:
+      TZ: Europe/Amsterdam
+      PGID: 1000
+      PUID: 1000
+      UMASK: 002
+    volumes:
+      - "./arrs/jellyfin/config:/config"
+      - "./arrs/jellyfin/cache:/cache"
+      - "/media/disk/DISKNAME/SERIESPATH:/media/TV"
+      - "/media/disk/DISKNAME/MOVIEPATH:/media/movies"
+      - "/media/disk/DISKNAME/MUSICPATH:/media/music"
+      - "/media/disk/DISKNAME/PICTURESPATH:/media/pictures"
+      - "/media/disk/DISKNAME/BOOKSPATH:/media/books"
+      - "/dev/shm:/transcode"
+    ports:
+      - "8110:8096"
+    restart: unless-stopped
+    networks:
+      - the_arrs
+
+
+# --- Jellyseerr Image
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    environment:
+      LOG_LEVEL: debug
+      TZ: Europe/Amsterdam
+    volumes:
+      - /home/gebruikersnaam/docker/jellyseerr/config:/app/config
+    ports:
+      - 8111:5055
+    restart: unless-stopped
+    networks:
+      - the_arrs
+
+
+# --- Radarr Image
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    environment:
+      PUID: 1000
+      PGID: 1000
+      TZ: Europe/Amsterdam
+    volumes:
+      - ./arrs/radarr/config:/config
+      - /media/disk/DISKNAME/MOVIEPATH:/movies #optional
+      - ./arrs/radarr/downloads:/downloads #optional
+    ports:
+      - 8112:7878
+    restart: unless-stopped
+    networks:
+      - the_arrs
+
+
+# --- Sonarr Image
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    environment:
+      PUID: 1000
+      PGID: 1000
+      TZ: Europe/Amsterdam
+    volumes:
+      - ./arrs/sonarr/config:/config
+      - /media/disk/DISKNAME/SERIESPATH:/tv #optional
+      - ./arrs/sonarr/downloads:/downloads #optional
+    ports:
+      - 8113:8989
+    restart: unless-stopped
+    networks:
+      - the_arrs
+
+
+# --- Bazarr Image
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    environment:
+      PUID: 1000
+      PGID: 1000
+      TZ: Europe/Amsterdam
+    volumes:
+      - ./arrs/bazarr/config:/config
+      - /media/disk/DISKNAME/MOVIEPATH:/movies #optional
+      - /media/disk/DISKNAME/SERIESPATH:/tv #optional
+    ports:
+      - 8114:6767
+    restart: unless-stopped
+    networks:
+      - the_arrs
+
+
+# --- Lidarr Image
+  lidarr:
+    image: lscr.io/linuxserver/lidarr:latest
+    container_name: lidarr
+    environment:
+      PUID: 1000
+      PGID: 1000
+      TZ: Europe/Amsterdam
+    volumes:
+      - ./arrs/lidarr/config:/config
+      - /media/disk/DISKNAME/MUSICPATH:/music #optional
+      - ./arrs/lidarr/downloads:/downloads #optional
+    ports:
+      - 8115:8686
+    restart: unless-stopped
+    networks:
+      - the_arrs
+
+
+# --- Jackett Image
+  jackett:
+    image: lscr.io/linuxserver/jackett:latest
+    container_name: jackett
+    environment:
+      PUID: 1000
+      PGID: 1000
+      TZ: Europe/Amsterdam
+      AUTO_UPDATE: true #optional
+#       RUN_OPTS: <run options here> #optional
+    volumes:
+      - ./arrs/jackett/config:/config
+      - ./arrs/jackett/downloads:/downloads
+    ports:
+      - 8116:9117
+    restart: unless-stopped
+    networks:
+      - the_arrs
+
+
+# --- qBittorrent Image
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    environment:
+      PUID: 1000
+      PGID: 1000
+      TZ: Europe/Amsterdam
+      WEBUI_PORT: 8080
+    volumes:
+      - ./arrs/qbittorrent/config:/config
+      - ./arrs/qbittorrent/downloads:/downloads
+    ports:
+      - 8080:8080
+      - 8117:6881
+      - 8117:6881/udp
+    restart: unless-stopped
+    networks:
+      - the_arrs
+
+networks:
+  the_arrs:
+    driver: bridge
+    scope: local
+    attachable: true
+    internal: false
+    ipam:
+      config:
+        - subnet: 172.30.0.0/16 # CHANGE THE SUBNET TO YOUR OWN PREFERRED RANGE!!!
+          gateway: 172.30.0.1 # GATEWAY GOES WITH THE SUBNET!!!
