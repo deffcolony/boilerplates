@@ -1,6 +1,6 @@
-<h1 align="center">Scripts</h1>
+<h1 align="center">Boilerplates</h1>
 <p align="center">
-  <i>"Simplify your life and streamline your workflow with our collection of usefull scripts"</i>
+  <i>"Simplify your life and streamline your workflow with our collection of usefull boilerplates"</i>
    <br/>
   <img width="120" src="https://i.imgur.com/j3XbVfG.png" />
   <br/>
@@ -9,7 +9,9 @@
 
 # About
 
-This repository contains scripts for automation, backups, and other helpful utilities to make your life easier. Whether you are a system administrator, developer, or just someone who wants to automate repetitive tasks, this repository has scripts that can help.
+Boilerplates, in the context of software development, refer to preconfigured templates or starting points that provide a foundation for creating new projects or applications. They are reusable and standardized setups that encapsulate common configurations, dependencies, and structures for a specific technology stack or service.
+  
+This repository contains scripts and docker-compose templates for automation, backups, and other helpful utilities to make your life easier. Whether you are a system administrator, developer, or just someone who wants to automate repetitive tasks, this repository has scripts that can help.
 
 ## Features
 
