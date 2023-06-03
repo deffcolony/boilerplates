@@ -1,0 +1,16 @@
+version: "3.8"
+
+services:
+  portainer:
+    image: portainer/portainer-ce:latest # For Business Edition use: portainer/portainer-ee:latest
+    container_name: portainer
+    volumes:
+      - ./portainer:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8000:8000"
+      - "9000:9000"
+    restart: always
+
+volumes:
+  portainer_data:
