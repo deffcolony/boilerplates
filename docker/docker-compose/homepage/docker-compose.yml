@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  homepage:
+    image: ghcr.io/benphelps/homepage:latest
+    container_name: hpage
+    volumes:
+      - ./hpage/config:/app/config
+      - ./hpage/icons:/app/public/icons
+      - ./hpage/images:/app/public/images # (optional) For custom background images
+      - /var/run/docker.sock:/var/run/docker.sock:ro # (optional) For docker integrations
+    ports:
+      - 8101:3000
+    restart: unless-stopped
