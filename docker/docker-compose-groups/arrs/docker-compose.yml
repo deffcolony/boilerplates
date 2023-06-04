@@ -36,7 +36,7 @@ services:
       LOG_LEVEL: debug
       TZ: Europe/Amsterdam
     volumes:
-      - /home/gebruikersnaam/docker/jellyseerr/config:/app/config
+      - ./jellyseerr/config:/app/config
     ports:
       - 8111:5055
     restart: unless-stopped
