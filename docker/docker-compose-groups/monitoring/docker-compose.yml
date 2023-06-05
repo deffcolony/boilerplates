@@ -1,0 +1,92 @@
+version: "3.8"
+
+# --- Uptime Kuma Image
+services:
+  uptimekuma:
+    image: louislam/uptime-kuma:latest
+    container_name: uptimekuma
+    volumes:
+      - ./uptime-kuma/data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8160:3001"
+    restart: unless-stopped
+    networks:
+      - netmonitor
+
+
+# --- Netdata Image
+  netdata:
+    image: netdata/netdata
+    container_name: netdata
+#    hostname: example.com       # Optional set to fqdn of host
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - apparmor:unconfined
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /etc/os-release:/host/etc/os-release:ro
+      - /etc/passwd:/host/etc/passwd:ro
+      - /etc/group:/host/etc/group:ro
+#      - ./netdata/netdataconfig:/etc/netdata        # Optional
+#      - ./netdata/netdatalib:/var/lib/netdata       # Optional
+#      - ./netdata/netdatacache:/var/cache/netdata   # Optional
+    ports:
+      - 8166:19999
+    restart: unless-stopped
+    networks:
+      - netmonitor
+
+
+# --- Grafana Image
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: grafana
+    volumes:
+      - ./grafana/data:/var/lib/grafana
+    ports:
+      - "8164:3000"
+    restart: unless-stopped
+    networks:
+      - netmonitor
+
+
+# --- Prometheus Image
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    command:
+      - "--config.file=/etc/prometheus:"
+    volumes:
+      - /etc/prometheus:/etc/prometheus
+      - ./prometheus/data:/prometheus
+    ports:
+      - "8163:9090"
+    restart: unless-stopped
+    networks:
+      - netmonitor
+
+
+# --- OpenSpeedTest Image
+  openspeedtest:
+    image: openspeedtest:latest
+    container_name: openspeedtest
+    ports:
+      - 8161:3000
+      - 8162:3001
+    restart: unless-stopped
+    networks:
+      - netmonitor
+
+networks:
+  netmonitor:
+    driver: bridge
+    scope: local
+    attachable: true
+    internal: false
+    ipam:
+      config:
+        - subnet: 172.50.0.0/16 # CHANGE THE SUBNET TO YOUR OWN PREFERRED RANGE!!!
+          gateway: 172.50.0.1 # GATEWAY GOES WITH THE SUBNET!!!

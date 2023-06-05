@@ -1,0 +1,51 @@
+version: "3.8"
+
+# --- Portainer Image
+services:
+  portainer:
+    image: portainer/portainer-ce:latest # For Business Edition use: portainer/portainer-ee:latest
+    container_name: portainer
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./portainer:/data
+    ports:
+      - "8000:8000"
+      - "9000:9000"
+    restart: always
+    networks:
+      - remotemgnt
+
+# --- Remotely Image
+  remotely:
+    image: immybot/remotely:latest
+    container_name: remotely
+    volumes:
+      - ./remotely/data:/remotely-data
+    ports:
+      - 8215:5000
+    restart: unless-stopped
+    networks:
+      - remotemgnt
+
+# --- Guacamole Image
+  guacamole:
+    image: abesnier/guacamole   # The image didnt got updated --> jwetzell/guacamole
+    container_name: guacamole
+    volumes:
+      - ./guacamole/postgres:/config
+    ports:
+      - 8210:8080
+    restart: unless-stopped
+    networks:
+      - remotemgnt
+
+networks:
+  remotemgnt:
+    driver: bridge
+    scope: local
+    attachable: true
+    internal: false
+    ipam:
+      config:
+        - subnet: 172.60.0.0/16 # CHANGE THE SUBNET TO YOUR OWN PREFERRED RANGE!!!
+          gateway: 172.60.0.1 # GATEWAY GOES WITH THE SUBNET!!!

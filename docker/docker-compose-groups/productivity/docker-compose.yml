@@ -1,7 +1,7 @@
 version: "3.8"
 
-services:
 # --- Dolibarr Image
+services:
   web:
     image: tuxgasy/dolibarr
     container_name: dolibarr
@@ -141,7 +141,6 @@ services:
       - productivity
 
 
-
 # --- Seafile Image
   seafile:
     image: seafileltd/seafile-mc:latest
@@ -236,7 +235,6 @@ services:
     restart: unless-stopped
     networks:
       - productivity
-
 
 networks:
   productivity:
