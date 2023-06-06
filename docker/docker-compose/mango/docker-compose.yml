@@ -1,0 +1,12 @@
+version: "3.8"
+
+services:
+  mango:
+    image: hkalexling/mango
+    container_name: mango
+    volumes:
+      - ./mango/data:/root/mango
+      - ./mango/config:/root/.config/mango
+    ports:
+      - "8135:9000"
+    restart: unless-stopped

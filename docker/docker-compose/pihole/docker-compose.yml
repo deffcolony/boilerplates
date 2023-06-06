@@ -1,0 +1,62 @@
+# Replace <your_networkcard_name> with the name of the network card you want to use.
+# In the MacConfig network configuration, set the subnet, gateway, and ip_range values to match the desired configuration for your MacVLAN network.
+# In the MyMacVlan network configuration, set the subnet, gateway, and ip_range values to match the desired configuration for your MyMacVLAN network.
+
+version: "3.8"
+
+networks:
+  MacConfig:
+    driver: null
+    scope: local
+    attachable: false
+    internal: false
+    driver_opts:
+      parent: <your_networkcard_name>
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.1.0/24
+          gateway: 192.168.1.1
+          ip_range: 192.168.1.100/24
+
+
+  MyMacVlan:
+    driver: macvlan
+    scope: local
+    attachable: true
+    internal: false
+    driver_opts:
+      parent: <your_networkcard_name>
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.1.0/24
+          gateway: 192.168.1.1
+          ip_range: 192.168.1.100/24
+
+services:
+  pihole:
+    image: pihole/pihole:latest
+    container_name: pihole
+    # Recommended but not required (DHCP needs NET_ADMIN)
+    # https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
+    cap_add:
+      - NET_ADMIN
+    environment:
+      TZ: Europe/Amsterdam
+      WEBPASSWORD: your-secret-password
+    volumes:
+      - ./pihole/data:/etc/pihole
+      - ./pihole/dnsmasq:/etc/dnsmasq.d
+      - ./pihole/lighttpd:/etc/lighttpd
+      - ./pihole/errorpage:/var/www/html/pihole
+    ports:
+      - "8124:53/tcp"
+      - "8124:53/udp"
+      - "8123:67/udp"
+      - "8122:80/tcp"
+      - "8121:443/tcp"
+    restart: unless-stopped
+    networks:
+      MyMacVlan:
+        ipv4_address: 192.168.1.123

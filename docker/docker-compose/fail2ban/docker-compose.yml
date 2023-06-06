@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  fail2ban:
+    image: crazymax/fail2ban:latest
+    container_name: fail2ban
+    network_mode: "host"
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    environment:
+      TZ: "Europe/Amsterdam"
+      F2B_LOG_TARGET: "STDOUT"
+      F2B_LOG_LEVEL: "INFO"
+      F2B_DB_PURGE_AGE: "365d"
+      SSMTP_HOST: "smtp.example.com"
+      SSMTP_PORT: "587"
+      SSMTP_HOSTNAME: "example.com"
+      SSMTP_USER: "smtp@example.com"
+      SSMTP_PASSWORD: ""
+      SSMTP_TLS: "YES"
+    volumes:
+      - "./fail2ban/data:/data"
+      - "./nginxpm/data/logs/:/log/npm/:ro"
+      - "/var/log/auth.log:/var/log/auth.log:ro"
+    restart: unless-stopped

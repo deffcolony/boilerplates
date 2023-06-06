@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  mariadb:
+    image: mariadb:10.7
+    container_name: glpi-mariadb
+    environment:
+      MARIADB_ROOT_PASSWORD: Wwelkom123!
+      MARIADB_DATABASE: glpidb
+      MARIADB_USER: mdict
+      MARIADB_PASSWORD: Welkom123!
+    volumes:
+      - ./glpi/mysql:/var/lib/mysql
+    restart: unless-stopped
+
+  glpi:
+    image: diouxx/glpi
+    container_name: glpi
+    environment:
+      TIMEZONE: Europe/Amsterdam
+    volumes:
+      - ./glpi/data:/var/www/html/glpi
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "8222:80"
+    restart: unless-stopped

@@ -1,0 +1,11 @@
+version: "3.8"
+
+services:
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: grafana
+    volumes:
+      - ./grafana/data:/var/lib/grafana
+    ports:
+      - "8164:3000"
+    restart: unless-stopped

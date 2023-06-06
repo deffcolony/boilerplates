@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+  uvdesk:
+    image: nuttcorp/uvdesk:latest
+    container_name: uvdesk
+    tty: true
+    environment:
+      MYSQL_USER: "uvdesk"
+      MYSQL_PASSWORD: "change-me-to-something-strong-too"
+      MYSQL_ROOT_PASSWORD: "change-me-to-something-strong"
+      MYSQL_DATABASE: uvdesk
+    ports:
+        - 8221:80
+    restart: unless-stopped
+    depends_on:
+      - db
+
+  db:
+    image: "mysql:5.7"
+    container_name: uvdesk-mysql
+    environment:
+      MYSQL_DATABASE: uvdesk
+      MYSQL_ROOT_PASSWORD: "change-me-to-something-strong"
+      MYSQL_USER: "uvdesk"
+      MYSQL_PASSWORD: "change-me-to-something-strong-too"
+    volumes:
+      - ./uvdesk/db_data:/var/lib/mysql
+    restart: unless-stopped

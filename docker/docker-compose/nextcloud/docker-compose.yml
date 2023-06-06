@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  app:
+    image: nextcloud
+    container_name: nextcloud
+    environment:
+      MYSQL_PASSWORD: strongpassword!
+      MYSQL_DATABASE: nextcloud
+      MYSQL_USER: nextcloud
+      MYSQL_HOST: db
+    volumes:
+      - ./nextcloud/data:/var/www/html
+    ports:
+      - 8130:80
+    restart: unless-stopped
+    depends_on:
+      - db
+
+  db:
+    image: mariadb
+    container_name: nextcloud-mariadb
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    environment:
+      MYSQL_ROOT_PASSWORD: VeryStrongPassword!
+      MYSQL_PASSWORD: strongpassword!
+      MYSQL_DATABASE: nextcloud
+      MYSQL_USER: nextcloud
+    volumes:
+      - ./nextcloud/datadb:/var/lib/mysql
+    restart: unless-stopped

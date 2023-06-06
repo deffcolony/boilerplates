@@ -1,0 +1,12 @@
+version: "3.8"
+
+services:
+  changedetection:
+    image: dgtlmoon/changedetection.io
+    container_name: changedetection
+    volumes:
+      - ./datastore:/datastore
+#      - ./static:/app/changedetectionio/static
+    ports:
+      - "8167:5000"
+    restart: unless-stopped

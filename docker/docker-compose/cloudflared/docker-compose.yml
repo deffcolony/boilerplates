@@ -1,0 +1,22 @@
+version: '3.9'
+
+networks:
+#  frontend:
+#    external: true
+#  backend:
+#    external: true
+  bridge:
+    driver: bridge
+
+services:
+  cloudflaretunnel:
+    image: cloudflare/cloudflared:2023.2.1
+    container_name: cloudflaretunnel
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: YOURCLOUDFLARETUNNELTOKENHEREEEE
+    restart: unless-stopped
+    networks:
+#      - frontend
+#      - backend
+      - bridge

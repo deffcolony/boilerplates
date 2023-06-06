@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+  unifi-protect-x86:
+    image: markdegroot/unifi-protect-x86:latest
+    container_name: unifi-protect-x86
+    tmpfs:
+      - /srv/unifi-protect/temp
+    ports:
+      - 7080:7080
+      - 7443:7443
+      - 7444:7444
+      - 7447:7447
+      - 7550:7550
+      - 7442:7442
+    mem_limit: 2048m
+    volumes:
+      - ./unifi-protect/db:/var/lib/postgresql/10/main
+      - ./unifi-protect/data:/srv/unifi-protect
+    restart: unless-stopped

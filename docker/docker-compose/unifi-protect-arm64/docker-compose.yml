@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+  unifi-protect:
+    image: markdegroot/unifi-protect-arm64
+    container_name: unifi-protect
+    environment:
+      STORAGE_DISK: /dev/sda1
+    command: [ "sh", "-c", "systemd" ]
+    privileged: true
+    tmpfs:
+      - /run
+      - /run/lock
+      - /tmp
+    volumes:
+      - ./unifi-protect/cgroup:/sys/fs/cgroup:ro
+      - ./unifi-protect/srv:/srv
+      - ./unifi-protect/data:/data
+      - ./unifi-protect/persistent:/persistent
+    network_mode: host

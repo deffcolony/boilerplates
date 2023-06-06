@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  webtop:
+    image: lscr.io/linuxserver/webtop
+    container_name: webtop
+    privileged: true
+    shm_size: "1gb"
+    devices:
+      - /dev/dri:/dev/dri
+    security_opt:
+      - seccomp=unconfined
+    environment:
+      PUID: 1000
+      PGID: 1000
+      TZ: Europe/Amsterdam
+      SUBFOLDER: /
+      KEYBOARD: en-us-qwerty
+      TITLE: Webtop
+    volumes:
+      - ./webtop/config:/config
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8211:3000"
+    restart: unless-stopped

@@ -1,0 +1,11 @@
+version: "3.8"
+
+services:
+  mydiscordbot01:
+    image: jonasbonno/discordbot:latest
+    container_name: mydiscordbot01
+    environment:
+      TOKEN: INSERTDISCORDBOTTOKENHEREEEE
+    volumes:
+      - ./mydiscordbot01/data:/data
+    restart: unless-stopped

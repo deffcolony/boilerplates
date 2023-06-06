@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    environment:
+      PUID: 1000
+      PGID: 1000
+      TZ: Europe/Amsterdam
+    volumes:
+      - ./radarr/config:/config
+      - /media/disk/DISKNAME/MOVIEPATH:/movies #optional
+      - ./radarr/downloads:/downloads #optional
+    ports:
+      - 8112:7878
+    restart: unless-stopped

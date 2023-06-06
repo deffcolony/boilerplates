@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:stable
+    container_name: homeassistant
+    volumes:
+      - ./homeassistant/config:/config
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - 8260:8123
+    restart: unless-stopped
+#    depends_on:
+#      - mariadb
+
+#  mariadb:
+#    image: linuxserver/mariadb
+#    container_name: homeassistant_db
+#    environment:
+#      MYSQL_ROOT_PASSWORD: P@sswOrd1@Home
+#      MYSQL_DATABASE: homeassistant
+#      MYSQL_USER: homeassistant
+#      MYSQL_PASSWORD: P@sswOrd1@Home
+#    volumes:
+#      - /home/axdocker/docker/homeassistant/db:/var/lib/mysql
+#    ports:
+#      - 8261:3306
+#    restart: unless-stopped

@@ -1,0 +1,24 @@
+version: "3.8"
+
+services:
+  spacebar-server:
+    image: ccgurley/spacebar-server:latest
+    container_name: spacebar-server
+    environment:
+      CONFIG_PATH: '/spacebar-server/db/config.json'
+    volumes:
+      - ./db:/spacebar-server/db/
+    ports:
+      - 8400:3001
+    restart: unless-stopped
+
+  spacebar-client:
+    image: ccgurley/spacebar-client:latest
+    container_name: spacebar-client
+    environment:
+      SERVER_API: 'https://api.spacebar.chat'
+      SERVER_CDN: 'https://cdn.spacebar.chat'
+      SERVER_GATEWAY: 'wss://gateway.spacebar.chat'
+    ports:
+      - 8401:80
+    restart: unless-stopped

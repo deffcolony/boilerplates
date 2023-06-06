@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  wiki:
+    image: ghcr.io/requarks/wiki:2
+    container_name: wikijs
+    environment:
+      DB_TYPE: postgres
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: wikijs
+      DB_PASS: wikijsrocks
+      DB_NAME: wiki
+    ports:
+      - "8141:3000"
+    restart: unless-stopped
+    depends_on:
+      - db
+
+  db:
+    image: postgres:11-alpine
+    container_name: wikijs-postgres
+    environment:
+      POSTGRES_DB: wiki
+      POSTGRES_PASSWORD: wikijsrocks
+      POSTGRES_USER: wikijs
+    logging:
+      driver: "none"
+    volumes:
+      - ./wikijs/db-data:/var/lib/postgresql/data
+    restart: unless-stopped

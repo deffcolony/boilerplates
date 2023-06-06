@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  app:
+    image: maxime1907/ipboard:latest     # OPTIONAL, Use cmer81/ipboard:latest for php 8.1
+    container_name: ipboard
+    environment:
+      MYSQL_PASSWORD: strongpassword!
+      MYSQL_DATABASE: ipboard
+      MYSQL_USER: ipboard
+      MYSQL_HOST: db
+      WEB_ALIAS_DOMAIN: forum.arcadeparty.lan
+      APPLICATION_UID: 1000
+      APPLICATION_GID: 1000
+      PGID: 1000
+      PUID: 1000
+      TZ: Europe/Amsterdam
+    volumes:
+      - ./ipboard:/app
+    ports:
+      - 8156:80
+    restart: unless-stopped
+    depends_on:
+      - db
+
+  db:
+    image: mariadb
+    container_name: ipboard-mariadb
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    environment:
+      MYSQL_ROOT_PASSWORD: VeryStrongPassword!
+      MYSQL_PASSWORD: strongpassword!
+      MYSQL_DATABASE: ipboard
+      MYSQL_USER: ipboard
+    volumes:
+      - ./ipboard/datadb:/var/lib/mysql
+    restart: unless-stopped

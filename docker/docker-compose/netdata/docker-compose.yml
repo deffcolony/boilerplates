@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  netdata:
+    image: netdata/netdata
+    container_name: netdata
+#    hostname: example.com       # Optional set to fqdn of host
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - apparmor:unconfined
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /etc/os-release:/host/etc/os-release:ro
+      - /etc/passwd:/host/etc/passwd:ro
+      - /etc/group:/host/etc/group:ro
+#      - ./netdata/netdataconfig:/etc/netdata        # Optional
+#      - ./netdata/netdatalib:/var/lib/netdata       # Optional
+#      - ./netdata/netdatacache:/var/cache/netdata   # Optional
+    ports:
+      - 8166:19999
+    restart: unless-stopped

@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
+    environment:
+      TZ: Europe/Amsterdam
+      PGID: 1000
+      PUID: 1000
+      UMASK: 002
+    devices:
+      - /dev/dri:/dev/dri
+    volumes:
+      - "./jellyfin/config:/config"
+      - "./jellyfin/cache:/cache"
+      - "/media/disk/DISKNAME/SERIESPATH:/media/TV"
+      - "/media/disk/DISKNAME/MOVIEPATH:/media/movies"
+      - "/media/disk/DISKNAME/MUSICPATH:/media/music"
+      - "/media/disk/DISKNAME/PICTURESPATH:/media/pictures"
+      - "/media/disk/DISKNAME/BOOKSPATH:/media/books"
+      - "/dev/shm:/transcode"
+    ports:
+      - 8110:8096
+    restart: unless-stopped

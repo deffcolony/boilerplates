@@ -1,0 +1,16 @@
+version: "3.8"
+
+services:
+  openproject:
+    image: openproject/community:11
+    container_name: openproject
+    environment:
+      PUID: 998
+      PGID: 100
+      SECRET_KEY_BASE: koZirTof1faEzGv7vGyKugOq6RnpislI
+    volumes:
+      - ./openproject/config:/var/openproject/pgdata
+      - ./openproject/assets:/var/openproject/assets
+    ports:
+      - 8204:80
+    restart: unless-stopped

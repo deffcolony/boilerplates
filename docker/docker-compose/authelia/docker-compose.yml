@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  authelia:
+    image: authelia/authelia
+    container_name: authelia
+    healthcheck:
+      disable: true
+    environment:
+      TZ: Europe/Amsterdam
+    volumes:
+      - ./authelia/config:/config
+    ports:
+      - 8190:9091
+    restart: unless-stopped
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:alpine
+    container_name: authelia-redis
+    environment:
+      TZ: Europe/Amsterdam
+    volumes:
+      - ./authelia/redis:/data
+    ports:
+      - 6379:6379
+    restart: unless-stopped

@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  humhub:
+    image: mriedmann/humhub:latest
+    container_name: humhub
+    environment:
+      HUMHUB_DB_USER: humhub
+      HUMHUB_DB_PASSWORD: humhub
+    volumes:
+      - ./humhub/config:/var/www/localhost/htdocs/protected/config
+      - ./humhub/uploads:/var/www/localhost/htdocs/uploads
+      - ./humhub/modules:/var/www/localhost/htdocs/protected/modules
+      - ./humhub/themes:/var/www/localhost/htdocs/themes
+    ports:
+      - 8203:80
+    restart: unless-stopped
+    depends_on:
+      - db
+
+  db:
+    image: mariadb:10.2
+    container_name: humhub-mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: humhub
+      MYSQL_USER: humhub
+      MYSQL_PASSWORD: humhub
+    volumes:
+      - ./humhub/humhubdb:/var/lib/mysql
+    restart: unless-stopped

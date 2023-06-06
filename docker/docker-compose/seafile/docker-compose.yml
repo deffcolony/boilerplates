@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  seafile:
+    image: seafileltd/seafile-mc:latest
+    container_name: seafile
+    environment:
+      DB_HOST: db
+      DB_ROOT_PASSWD: samereallyreallystrongpassword
+      TIME_ZONE: Europe/Amsterdam
+#      SEAFILE_ADMIN_EMAIL: me@example.com
+#      SEAFILE_ADMIN_PASSWORD: asecret
+    volumes:
+      - ./seafile/data:/shared
+    ports:
+      - "8134:80"
+    restart: unless-stopped
+    depends_on:
+      - db
+      - memcached
+
+  db:
+    image: mariadb:10.5
+    container_name: seafile-mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: reallyreallystrongpassword
+      MYSQL_LOG_CONSOLE: true
+    volumes:
+      - ./seafile/db:/var/lib/mysql
+    restart: unless-stopped
+
+  memcached:
+    image: memcached:1.6
+    container_name: seafile-memcached
+    command: memcached -m 256
+    restart: unless-stopped

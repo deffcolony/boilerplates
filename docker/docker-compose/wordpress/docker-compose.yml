@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  wordpress:
+    image: wordpress
+    container_name: wordpress01
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: exampleuser
+      WORDPRESS_DB_PASSWORD: examplepass
+      WORDPRESS_DB_NAME: exampledb
+    volumes:
+      - ./wordpress/www/YOUREWEBSITENAME:/var/www/html
+    ports:
+      - "8170:80"
+    restart: unless-stopped
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    container_name: wordpress01-mysql
+    environment:
+      MYSQL_DATABASE: sameexampledb
+      MYSQL_USER: sameexampleuser
+      MYSQL_PASSWORD: sameexamplepass
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
+    volumes:
+      - ./wordpress/www/mysqldb:/var/lib/mysql
+    restart: unless-stopped

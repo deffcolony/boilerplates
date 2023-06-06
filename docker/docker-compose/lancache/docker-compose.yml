@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+  dns:
+    image: lancachenet/lancache-dns:latest
+    container_name: lancache
+    env_file: .env
+    ports:
+      - ${DNS_BIND_IP}:53:53/udp # This is provided in the .env file!
+      - ${DNS_BIND_IP}:53:53/tcp # This is provided in the .env file!
+    restart: unless-stopped
+
+## HTTPS requests are now handled in monolithic directly
+## you could choose to return to sniproxy if desired
+#
+#  sniproxy:
+#    image: lancachenet/sniproxy:latest
+#    container_name: lancache-sniproxy
+#    env_file: .env
+#    ports:
+#      - 443:443/tcp
+#    restart: unless-stopped
+
+  monolithic:
+    image: lancachenet/monolithic:latest
+    container_name: lancache-monolithic
+    env_file: .env
+    volumes:
+      - ${CACHE_ROOT}/cache:/data/cache # This is provided in the .env file!
+      - ${CACHE_ROOT}/logs:/data/logs # This is provided in the .env file!
+    ports:
+      - 80:80/tcp
+      - 443:443/tcp
+    restart: unless-stopped

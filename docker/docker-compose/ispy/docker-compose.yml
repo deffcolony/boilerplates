@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  ispy:
+    image: doitandbedone/ispyagentdvr
+    container_name: ispy
+    environment:
+      TZ: Europe/Amsterdam
+    volumes:
+      - ./ispy/media:/agent/Media/XML/
+      - /path/to/a/large/storage/drive/ispy/:/agent/Media/WebServerRoot/Media/
+      - ./ispy/commands:/agent/Commands/
+    ports:
+      - 8230:8090
+      - 3478:3478/udp
+      - 50000-50010:50000-50010/udp
+    restart: unless-stopped

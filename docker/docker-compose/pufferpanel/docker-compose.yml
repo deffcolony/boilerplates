@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  pufferpanel:
+    image: pufferpanel/pufferpanel:latest
+    container_name: pufferpanel
+    volumes:
+      - ./pufferpanel/config:/etc/pufferpanel
+      - ./pufferpanel/servers:/var/lib/pufferpanel
+    ports:
+      - 8180:8080
+      - 8181:5657
+      - 25565:25565 # Used for example a minecraft server
+    restart: unless-stopped

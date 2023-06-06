@@ -1,0 +1,92 @@
+##############################################################
+#                   Authelia configuration                    #
+###############################################################
+
+host: 0.0.0.0
+port: 9091 # change this if you changed it in the docker-compose file
+log_level: info
+jwt_secret: some-other-long-string-of-letters-and-numbers-in-mixed-case
+default_redirection_url: https://auth.example.com
+totp:
+  issuer: example.com
+  period: 30
+  skew: 1
+
+#duo_api:     ## You can use this api if you want push notifications of auth attempts
+#  hostname: api-123456789.example.com
+#  integration_key: ABCDEF
+#  secret_key: yet-another-long-string-of-characters-and-numbers-and-symbols
+
+authentication_backend:
+  disable_reset_password: false
+  file:
+    path: /config/users_database.yml # create this file !IMPORTANT!
+    password:
+      algorithm: argon2id
+      iterations: 1
+      salt_length: 16
+      parallelism: 8
+      memory: 64
+
+access_control:
+  default_policy: deny # NOTE: all domains added in NPM rules will be denied unless added below
+  rules:
+    # Rules applied to everyone
+    - domain:
+        - "movies.example.com"
+        - "auth.example.com"
+      policy: bypass
+    - domain:
+        - "dashboard.example.com"
+        - "search.example.com"
+        - "example.com"
+      policy: one_factor
+#      networks:
+#        - 192.168.1.0/24
+    - domain:
+        - "ntop.example.com"
+      policy: two_factor
+#      networks:
+         - 192.168.1.0/24
+
+session:
+  name: authelia_session
+  # This secret can also be set using the env variables AUTHELIA_SESSION_SECRET_FILE
+  secret: <some-long-mix-set-of-numbers-and-letters-upper-and-lower-case>
+  expiration: 3600 # 1 hour
+  inactivity: 7200 # 2 hours
+  domain: your-domain.org # Should match whatever your root protected domain is
+
+  redis:
+    host: authelia_redis_1
+    port: 6379
+    # This secret can also be set using the env variables AUTHELIA_SESSION_REDIS_PASSWORD_FILE
+#    password: authelia
+
+regulation:
+  max_retries: 3
+  find_time: 2m
+  ban_time: 10m
+
+theme: dark   # options: dark, light
+
+storage:
+  local:
+    path: /config/db.sqlite3
+
+notifier:
+#  filesystem:
+#    filename: /config/notification.txt
+  smtp:
+    username: your-user@your-email-domain.org
+    password: your-user-email-password-for-smtp
+    host: your-email-host-url-or-ip
+    port: your-email-port-for-smtp  # 25 non-ssl, 443 ssl, 587 tls
+    sender: sender@your-email-domain.org
+    subject: "[Authelia] {title}"
+    disable_require_tls: false # set to true if your domain uses no tls or ssl only
+    disable_html_emails: false # set to true if you don't want html in your emails
+    tls:
+      server_name: <your-email-host-url-or-ip>
+      skip_verify: false
+      minimum_version: TLS1.2
