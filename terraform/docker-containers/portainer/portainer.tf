@@ -10,7 +10,7 @@ terraform {
 provider "docker" {}
 
 resource "docker_container" "portainer" {
-  image        = "portainer/portainer-ce:latest"
+  image        = "portainer/portainer-ce:latest" # For Business Edition use: portainer/portainer-ee:latest
   name         = "portainer"
   volumes      = ["./portainer:/data", "/var/run/docker.sock:/var/run/docker.sock"]
   ports {
