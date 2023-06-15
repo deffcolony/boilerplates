@@ -1,4 +1,3 @@
-```
 # Proxmox Terraform Configuration
 
 This repository contains Terraform configuration files for managing Proxmox resources using Terraform.
@@ -14,19 +13,13 @@ Before you can use this Terraform configuration, ensure that you have the follow
 
 To get started with this Proxmox Terraform configuration, follow these steps:
 
-1. Clone this repository to your server.
+1. Navigate to the cloned repository.
 
    ```shell
-   git clone https://github.com/deffcolony/proxmox-terraform.git
+   cd boilerplates/terraform/proxmox
    ```
 
-2. Navigate to the cloned repository.
-
-   ```shell
-   cd proxmox-terraform
-   ```
-
-3. Open the `credentials.auto.tfvars` file and provide your Proxmox API credentials.
+2. Open the `credentials.auto.tfvars` file and provide your Proxmox API credentials.
 
    ```shell
    cp credentials.auto.tfvars.example credentials.auto.tfvars
@@ -35,15 +28,15 @@ To get started with this Proxmox Terraform configuration, follow these steps:
 
    Replace the placeholder values with your actual Proxmox API URL, token ID, and token secret.
 
-4. Review and customize the `full-clone.tf` file based on your requirements. This file defines the Proxmox full clone configuration. Update the VM settings, such as target node, VM ID, name, description, CPU, memory, network, etc., according to your needs.
+3. Review and customize the `full-clone.tf` file based on your requirements. This file defines the Proxmox full clone configuration. Update the VM settings, such as target node, VM ID, name, description, CPU, memory, network, etc., according to your needs.
 
-5. Initialize the Terraform workspace.
+4. Initialize the Terraform workspace.
 
    ```shell
    terraform init
    ```
 
-6. Review the execution plan.
+5. Review the execution plan.
 
    ```shell
    terraform plan
@@ -51,7 +44,7 @@ To get started with this Proxmox Terraform configuration, follow these steps:
 
    This will show you the planned changes that Terraform will apply to your Proxmox infrastructure based on the configuration files.
 
-7. Apply the Terraform configuration.
+6. Apply the Terraform configuration.
 
    ```shell
    terraform apply
@@ -78,4 +71,3 @@ Contributions to this Proxmox Terraform configuration are welcome! If you find a
 This Proxmox Terraform configuration is licensed under the [MIT License](LICENSE).
 
 Feel free to customize and adapt the configuration to suit your specific needs.
-```
