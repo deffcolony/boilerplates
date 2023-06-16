@@ -9,6 +9,29 @@ Before you can use this Terraform configuration, ensure that you have the follow
 - [Terraform](https://www.terraform.io/downloads.html) installed on your server.
 - Access to a Proxmox server with appropriate permissions to create and manage resources.
 
+
+## Configuration
+
+The Terraform configurations in this repository include the following files:
+
+- `credentials.auto.tfvars`: This file contains the configuration variables for connecting to your Proxmox instance. You need to provide values for the following variables:
+  - `proxmox_api_url`: The URL of your Proxmox API.
+  - `proxmox_api_token_id`: The API token ID for authentication.
+  - `proxmox_api_token_secret`: The API token secret for authentication.
+
+  **Note:** Make sure not to commit and push this file to a public repository as it contains sensitive information.
+
+- `full-clone.tf`: This file defines the configuration for creating a new VM from a clone in Proxmox. It specifies various settings such as the target node, VM ID, name, description, CPU and memory settings, network configuration, and cloud-init settings. Modify this file to match your specific requirements for creating the VM.
+
+- `provider.tf`: This file specifies the provider configuration for Proxmox. It defines the Proxmox API URL and the API token credentials used for authentication. You may optionally configure TLS verification in this file.
+
+Modify these configuration files according to your Proxmox setup and requirements.
+
+**Note:** It is recommended to review and customize these files carefully to ensure they align with your Proxmox environment and infrastructure needs.
+
+
+
+
 ## Getting Started
 
 To get started with this Proxmox Terraform configuration, follow these steps:

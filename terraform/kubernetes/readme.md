@@ -56,6 +56,12 @@ To deploy the Kubernetes resources, follow these steps:
 
 Terraform will prompt for confirmation before creating any resources. Enter "yes" to proceed.
 
+
+5. Wait for Terraform to provision the resources. Once completed, it will display the output with any relevant information.
+
+6. You can now access and manage your deployed applications on the Kubernetes cluster.
+
+
 ## Cleaning Up
 
 To remove the deployed Kubernetes resources, run the following command:
