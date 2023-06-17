@@ -1,0 +1,12 @@
+- name: Perform apt update
+  hosts: all
+  become: yes
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+      register: apt_update_result
+
+    - name: Display apt update result
+      debug:
+        var: apt_update_result

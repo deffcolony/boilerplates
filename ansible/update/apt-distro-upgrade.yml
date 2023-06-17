@@ -1,0 +1,17 @@
+- name: Perform distribution upgrade
+  hosts: all
+  become: yes
+  tasks:
+    - name: Update packages cache
+      apt:
+        update_cache: yes
+
+    - name: Perform distribution upgrade
+      shell: do-release-upgrade -f DistUpgradeViewNonInteractive
+      args:
+        creates: /var/log/dist-upgrade/main.log
+      register: dist_upgrade_result
+
+    - name: Display distribution upgrade result
+      debug:
+        var: dist_upgrade_result

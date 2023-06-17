@@ -1,0 +1,13 @@
+- name: Perform apt upgrade
+  hosts: all
+  become: yes
+  tasks:
+    - name: Upgrade packages
+      apt:
+        upgrade: yes
+        autoremove: yes
+      register: apt_upgrade_result
+
+    - name: Display apt upgrade result
+      debug:
+        var: apt_upgrade_result
