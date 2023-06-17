@@ -9,7 +9,7 @@ Before using these Terraform configurations, ensure that you have the following 
 - [Terraform](https://www.terraform.io/downloads.html) installed on your local machine.
 - Access to a Kubernetes cluster where you have permission to create and manage resources.
 
-## Configuration
+## Contents
 
 The Terraform configurations in this repository include the following files:
 

@@ -2,6 +2,13 @@
 
 This directory contains Packer templates for building Proxmox virtual machine images. The templates are pre-configured for specific Ubuntu server versions and variations.
 
+## Prerequisites
+
+Before using these Packer templates, ensure that you have the following prerequisites in place:
+
+- [Packer:](https://developer.hashicorp.com/packer/downloads) Install Packer on your local machine. Refer to the Packer website for installation instructions specific to your operating system.
+- [Proxmox:](https://www.proxmox.com/en/downloads) Set up a Proxmox environment with valid credentials to access and manage Proxmox virtual machines.
+
 ## Contents
 
 The following items are included in this directory:
@@ -10,7 +17,7 @@ The following items are included in this directory:
 - **ubuntu-server-focal**: A Packer template for building a standard Ubuntu Server Focal image.
 - **ubuntu-server-jammy-docker**: A Packer template for building an Ubuntu Server Jammy image with Docker pre-installed.
 - **ubuntu-server-jammy**: A Packer template for building a standard Ubuntu Server Jammy image.
-- **credentials.pkr.hcl**: A file that contains the credentials or access details required for interacting with external services or resources during the image building process. Please ensure to keep this file secure and follow security best practices for handling sensitive credentials.
+- `credentials.pkr.hcl`: A file that contains the credentials or access details required for interacting with external services or resources during the image building process. Please ensure to keep this file secure and follow security best practices for handling sensitive credentials.
 
 
 ## Getting Started
@@ -18,10 +25,6 @@ The following items are included in this directory:
 To use these Packer proxmox templates, follow these steps:
 
 1. Navigate to the cloned repository.
-
-   ```shell
-   cd boilerplates/packer/proxmox
-   ```
 
 ```shell
 cd boilerplates/packer/proxmox
