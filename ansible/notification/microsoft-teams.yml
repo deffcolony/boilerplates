@@ -1,0 +1,29 @@
+- name: Send Microsoft Teams notification
+  hosts: localhost
+  tasks:
+    - name: Send notification
+      uri:
+        url: "your-webhook-url"
+        method: POST
+        body_format: json
+        body:
+          "@type": "MessageCard"
+          "@context": "http://schema.org/extensions"
+          "themeColor": "0078D7"
+          "title": "Notification Title"
+          "text": "Notification Message"
+          "potentialAction": [
+            {
+              "@type": "OpenUri"
+              "name": "View Details"
+              "targets": [
+                {
+                  "os": "default"
+                  "uri": "https://example.com/details"
+                }
+              ]
+            }
+          ]
+        headers:
+          Content-Type: "application/json"
+        return_content: yes

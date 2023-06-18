@@ -1,0 +1,16 @@
+- name: Send Telegram notification
+  hosts: localhost
+  tasks:
+    - name: Send notification
+      uri:
+        url: "https://api.telegram.org/bot{{ telegram_bot_token }}/sendMessage"
+        method: POST
+        body_format: json
+        body:
+          chat_id: "{{ telegram_chat_id }}"
+          text: "Notification Message"
+      register: response
+
+    - name: Check response
+      debug:
+        var: response.json

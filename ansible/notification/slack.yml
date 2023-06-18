@@ -1,0 +1,15 @@
+- name: Send Slack notification
+  hosts: localhost
+  vars:
+    slack_webhook_url: "https://hooks.slack.com/services/XXXXXXXXX/XXXXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXX"
+    slack_message: "Notification Message"
+  tasks:
+    - name: Send notification
+      uri:
+        url: "{{ slack_webhook_url }}"
+        method: POST
+        body_format: json
+        body:
+          text: "{{ slack_message }}"
+        return_content: yes
+        status_code: 200

@@ -1,0 +1,14 @@
+- name: Send webhook notification
+  hosts: localhost
+  tasks:
+    - name: Send webhook
+      uri:
+        url: "your-webhook-url"
+        method: POST
+        body_format: json
+        body:
+          key1: "value1"
+          key2: "value2"
+        headers:
+          Content-Type: "application/json"
+        return_content: yes

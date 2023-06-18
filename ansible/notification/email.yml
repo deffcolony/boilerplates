@@ -1,0 +1,23 @@
+- name: send email
+  hosts: "hosts"
+  vars:
+    smtp_server: "your-smtp-server"
+    smtp_port: 587
+    smtp_username: "your-smtp-username"
+    smtp_password: "your-smtp-password"
+    sender_email: "sender@example.com"
+    recipient_email: "recipient@example.com"
+    email_subject: "Your email subject"
+    email_body: "Your email body"
+
+  tasks:
+    - name: send email
+      mail:
+        host: "smtp_server"
+        port: "smtp_port"
+        username: "smtp_username"
+        password: "smtp_password"
+        from_addr: "sender_email"
+        to_addr: "recipient_email"
+        subject: "email_subject"
+        body: "email_body"

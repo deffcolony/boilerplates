@@ -1,0 +1,26 @@
+- name: Send PagerDuty notification
+  hosts: localhost
+  vars:
+    pagerduty_api_key: "your-pagerduty-api-key"
+    pagerduty_routing_key: "your-pagerduty-routing-key"
+    pagerduty_event_action: "trigger"
+    pagerduty_event_summary: "Notification Summary"
+    pagerduty_event_source: "Ansible"
+  tasks:
+    - name: Send notification
+      uri:
+        url: "https://events.pagerduty.com/v2/enqueue"
+        method: POST
+        body_format: json
+        body:
+          routing_key: "{{ pagerduty_routing_key }}"
+          event_action: "{{ pagerduty_event_action }}"
+          payload: {
+            "summary": "{{ pagerduty_event_summary }}",
+            "source": "{{ pagerduty_event_source }}"
+          }
+        return_content: yes
+        status_code: 202
+      headers:
+        Content-Type: "application/json"
+        Authorization: "Token token={{ pagerduty_api_key }}"
