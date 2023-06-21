@@ -2,13 +2,13 @@ version: "3.8"
 
 services:
   semaphore:
-    image: semaphoreui/semaphore:v2.8.90
-    container_name: ansiblesemaphore
+    image: semaphoreui/semaphore:latest
     user: "${UID}:${GID}"
+    container_name: ansiblesemaphore
     environment:
       - SEMAPHORE_DB_USER=semaphore
       - SEMAPHORE_DB_PASS=secret-password  # change!
-      - SEMAPHORE_DB_HOST=mysql
+      - SEMAPHORE_DB_HOST=mariadb
       - SEMAPHORE_DB_PORT=3306
       - SEMAPHORE_DB_DIALECT=mysql
       - SEMAPHORE_DB=semaphore
@@ -17,24 +17,24 @@ services:
       - SEMAPHORE_ADMIN_NAME=admin
       - SEMAPHORE_ADMIN_EMAIL=admin@localhost
       - SEMAPHORE_ADMIN=admin
-      - SEMAPHORE_ACCESS_KEY_ENCRYPTION=  # add to your access key encryption !
+      - SEMAPHORE_ACCESS_KEY_ENCRYPTION= EUZi3BfINyLtUr0uZKfzGx+J14OfSTpUwLWTcks1dk0= # To generate a random key use: head -c32 /dev/urandom | base64
       - ANSIBLE_HOST_KEY_CHECKING=false  # (optional) change to true if you want to enable host key checking
     volumes:
-      - ./ansiblesemaphore/inventory/:/inventory:ro
-      - ./ansiblesemaphore/authorized-keys/:/authorized-keys:ro
-      - ./ansiblesemaphore/config/:/etc/semaphore:rw
+      - ./inventory/:/inventory:ro
+      - ./authorized-keys/:/authorized-keys:ro
+      - ./config/:/etc/semaphore:rw
     ports:
       - 9150:3000
     restart: unless-stopped
     depends_on:
-      - mysql
+      - mariadb
 
-  mysql:
-    image: mysql:8.0
+  mariadb:
+    image: mariadb:latest
     container_name: ansiblesemaphore-db
-    hostname: mysql
+    hostname: mariadb
     volumes:
-      - semaphore-mysql:/var/lib/mysql
+      - ./db:/var/lib/mysql
     environment:
       - MYSQL_RANDOM_ROOT_PASSWORD=yes
       - MYSQL_DATABASE=semaphore
