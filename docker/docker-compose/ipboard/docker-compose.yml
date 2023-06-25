@@ -33,5 +33,5 @@ services:
       MYSQL_DATABASE: ipboard
       MYSQL_USER: ipboard
     volumes:
-      - ./ipboard/datadb:/var/lib/mysql
+      - ./ipboard/db:/var/lib/mysql
     restart: unless-stopped

@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  owncast:
+    image: owncast/owncast:latest
+    container_name: owncast
+    volumes:
+      - ./data:/app/data
+    ports:
+      - 8310:8080
+      - 8311:1935
+    restart: unless-stopped
+    tty: true
