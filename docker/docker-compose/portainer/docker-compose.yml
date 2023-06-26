@@ -5,7 +5,7 @@ services:
     image: portainer/portainer-ce:latest # For Business Edition use: portainer/portainer-ee:latest
     container_name: portainer
     volumes:
-      - ./portainer:/data
+      - ./data:/data
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "8000:8000"

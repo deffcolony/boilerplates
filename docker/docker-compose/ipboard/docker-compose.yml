@@ -16,7 +16,7 @@ services:
       PUID: 1000
       TZ: Europe/Amsterdam
     volumes:
-      - ./ipboard:/app
+      - ./data:/app
     ports:
       - 8156:80
     restart: unless-stopped
@@ -33,5 +33,5 @@ services:
       MYSQL_DATABASE: ipboard
       MYSQL_USER: ipboard
     volumes:
-      - ./ipboard/db:/var/lib/mysql
+      - ./db:/var/lib/mysql
     restart: unless-stopped

@@ -15,6 +15,6 @@ services:
       - 7442:7442
     mem_limit: 2048m
     volumes:
-      - ./unifi-protect/db:/var/lib/postgresql/10/main
-      - ./unifi-protect/data:/srv/unifi-protect
+      - ./db:/var/lib/postgresql/10/main
+      - ./data:/srv/unifi-protect
     restart: unless-stopped

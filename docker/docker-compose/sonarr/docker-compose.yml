@@ -9,9 +9,9 @@ services:
       PGID: 1000
       TZ: Europe/Amsterdam
     volumes:
-      - ./sonarr/config:/config
+      - ./config:/config
       - /media/disk/DISKNAME/SERIESPATH:/tv #optional
-      - ./sonarr/downloads:/downloads #optional
+      - ./downloads:/downloads #optional
     ports:
       - 8113:8989
     restart: unless-stopped

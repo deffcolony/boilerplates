@@ -27,5 +27,5 @@ services:
     logging:
       driver: "none"
     volumes:
-      - ./wikijs/db-data:/var/lib/postgresql/data
+      - ./db:/var/lib/postgresql/data
     restart: unless-stopped

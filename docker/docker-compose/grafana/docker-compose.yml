@@ -5,7 +5,7 @@ services:
     image: grafana/grafana-oss:latest
     container_name: grafana
     volumes:
-      - ./grafana/data:/var/lib/grafana
+      - ./data:/var/lib/grafana
     ports:
       - "8164:3000"
     restart: unless-stopped

@@ -11,7 +11,7 @@ services:
       PGID: 1000
       TZ: Europe/Amsterdam
     volumes:
-      - ./firefox/config:/config
+      - ./config:/config
     ports:
       - 8300:3000
     shm_size: "1gb"

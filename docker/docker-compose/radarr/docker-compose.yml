@@ -9,9 +9,9 @@ services:
       PGID: 1000
       TZ: Europe/Amsterdam
     volumes:
-      - ./radarr/config:/config
+      - ./config:/config
       - /media/disk/DISKNAME/MOVIEPATH:/movies #optional
-      - ./radarr/downloads:/downloads #optional
+      - ./downloads:/downloads #optional
     ports:
       - 8112:7878
     restart: unless-stopped

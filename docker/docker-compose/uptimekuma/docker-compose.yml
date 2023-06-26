@@ -5,7 +5,7 @@ services:
     image: louislam/uptime-kuma:latest
     container_name: uptimekuma
     volumes:
-      - ./uptime-kuma/data:/app/data
+      - ./data:/app/data
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "8160:3001"

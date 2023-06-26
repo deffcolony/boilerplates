@@ -11,8 +11,8 @@ services:
       AUTO_UPDATE: true #optional
 #      - RUN_OPTS=<run options here> #optional
     volumes:
-      - ./jackett/config:/config
-      - ./jackett/downloads:/downloads
+      - ./config:/config
+      - ./downloads:/downloads
     ports:
       - 8114:9117
     restart: unless-stopped

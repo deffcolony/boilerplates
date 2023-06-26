@@ -10,7 +10,7 @@ services:
       WORDPRESS_DB_PASSWORD: examplepass
       WORDPRESS_DB_NAME: exampledb
     volumes:
-      - ./wordpress/www/YOUREWEBSITENAME:/var/www/html
+      - ./www/YOUREWEBSITENAME:/var/www/html
     ports:
       - "8170:80"
     restart: unless-stopped
@@ -26,5 +26,5 @@ services:
       MYSQL_PASSWORD: sameexamplepass
       MYSQL_RANDOM_ROOT_PASSWORD: '1'
     volumes:
-      - ./wordpress/www/mysqldb:/var/lib/mysql
+      - ./www/db:/var/lib/mysql
     restart: unless-stopped

@@ -11,7 +11,7 @@ services:
 #      SEAFILE_ADMIN_EMAIL: me@example.com
 #      SEAFILE_ADMIN_PASSWORD: asecret
     volumes:
-      - ./seafile/data:/shared
+      - ./data:/shared
     ports:
       - "8134:80"
     restart: unless-stopped
@@ -26,7 +26,7 @@ services:
       MYSQL_ROOT_PASSWORD: reallyreallystrongpassword
       MYSQL_LOG_CONSOLE: true
     volumes:
-      - ./seafile/db:/var/lib/mysql
+      - ./db:/var/lib/mysql
     restart: unless-stopped
 
   memcached:

@@ -5,7 +5,7 @@ services:
     image: ghcr.io/home-assistant/home-assistant:stable
     container_name: homeassistant
     volumes:
-      - ./homeassistant/config:/config
+      - ./config:/config
       - /etc/localtime:/etc/localtime:ro
     ports:
       - 8260:8123
@@ -22,7 +22,7 @@ services:
 #      MYSQL_USER: homeassistant
 #      MYSQL_PASSWORD: P@sswOrd1@Home
 #    volumes:
-#      - /home/axdocker/docker/homeassistant/db:/var/lib/mysql
+#      - ./db:/var/lib/mysql
 #    ports:
 #      - 8261:3306
 #    restart: unless-stopped

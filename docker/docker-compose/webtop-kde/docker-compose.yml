@@ -20,7 +20,7 @@ services:
       KEYBOARD: en-us-qwerty
       TITLE: Webtop
     volumes:
-      - ./webtop/config:/config
+      - ./config:/config
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "8211:3000"

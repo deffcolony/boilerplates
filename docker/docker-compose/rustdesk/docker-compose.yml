@@ -7,7 +7,7 @@ services:
     command: hbbs -r rustdesk.arcadeparty.lan:21117 # Change the URL to your domain
 
     volumes:
-      - ./rustdesk/hbbs/data:/root
+      - ./hbbs/data:/root
     ports:
       - 21115:21115
       - 21116:21116
@@ -22,7 +22,7 @@ services:
     container_name: rustdesk-hbbr
     command: hbbr
     volumes:
-      - ./rustdesk/hbbr/data:/root
+      - ./hbbr/data:/root
     ports:
       - 21117:21117
       - 21119:21119

@@ -13,8 +13,8 @@ services:
       - /run/lock
       - /tmp
     volumes:
-      - ./unifi-protect/cgroup:/sys/fs/cgroup:ro
-      - ./unifi-protect/srv:/srv
-      - ./unifi-protect/data:/data
-      - ./unifi-protect/persistent:/persistent
+      - ./cgroup:/sys/fs/cgroup:ro
+      - ./srv:/srv
+      - ./data:/data
+      - ./persistent:/persistent
     network_mode: host

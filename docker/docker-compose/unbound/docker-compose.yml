@@ -7,7 +7,7 @@ services:
     healthcheck:
       disable: true
     volumes:
-      - ./unbound/data:/opt/unbound/etc/unbound
+      - ./data:/opt/unbound/etc/unbound
     ports:
       - "8120:53/tcp"
       - "8120:53/udp"

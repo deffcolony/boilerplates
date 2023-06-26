@@ -13,5 +13,5 @@ services:
       TOKEN: token
       LOG_FILE: false
     volumes:
-      - ./duckdns/config:/config
+      - ./config:/config
     restart: unless-stopped

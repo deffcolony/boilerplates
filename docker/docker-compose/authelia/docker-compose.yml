@@ -9,7 +9,7 @@ services:
     environment:
       TZ: Europe/Amsterdam
     volumes:
-      - ./authelia/config:/config
+      - ./config:/config
     ports:
       - 8190:9091
     restart: unless-stopped
@@ -22,7 +22,7 @@ services:
     environment:
       TZ: Europe/Amsterdam
     volumes:
-      - ./authelia/redis:/data
+      - ./redis:/data
     ports:
       - 6379:6379
     restart: unless-stopped

@@ -11,8 +11,8 @@ services:
       DOCKER_HUB_USERNAME: USER #optional
       DOCKER_HUB_PASSWORD: PASS #optional
     volumes:
-      - ./kasm/data:/opt
-      - ./kasm/profiles:/profiles #optional
+      - ./data:/opt
+      - ./profiles:/profiles #optional
       - /dev/input:/dev/input #optional
       - /run/udev/data:/run/udev/data #optional
     ports:

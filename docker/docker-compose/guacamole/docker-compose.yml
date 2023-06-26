@@ -5,7 +5,7 @@ services:
     image: abesnier/guacamole   # The image didnt got updated --> jwetzell/guacamole
     container_name: guacamole
     volumes:
-      - ./guacamole/postgres:/config
+      - ./postgres:/config
     ports:
       - 8210:8080
     restart: unless-stopped

@@ -25,5 +25,5 @@ services:
       MYSQL_USER: "uvdesk"
       MYSQL_PASSWORD: "change-me-to-something-strong-too"
     volumes:
-      - ./uvdesk/db_data:/var/lib/mysql
+      - ./db:/var/lib/mysql
     restart: unless-stopped

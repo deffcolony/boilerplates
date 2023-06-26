@@ -5,7 +5,7 @@ services:
     image: immybot/remotely:latest
     container_name: remotely
     volumes:
-      - ./remotely/data:/remotely-data
+      - ./data:/remotely-data
     ports:
       - 8215:5000
     restart: unless-stopped

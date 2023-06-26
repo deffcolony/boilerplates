@@ -6,7 +6,7 @@ services:
     container_name: gitlab-runner
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./gitlab/gitlab-runner:/etc/gitlab-runner
+      - ./gitlab-runner:/etc/gitlab-runner
     restart: unless-stopped
     depends_on:
       - web
@@ -20,9 +20,9 @@ services:
         external_url 'https://gitlab.example.com'
         # Add any other gitlab.rb configuration here, each on its own line
     volumes:
-      - ./gitlab/config:/etc/gitlab
-      - ./gitlab/logs:/var/log/gitlab
-      - ./gitlab/data:/var/opt/gitlab
+      - ./config:/etc/gitlab
+      - ./logs:/var/log/gitlab
+      - ./data:/var/opt/gitlab
     ports:
       - '8225:80'
       - '8226:443'

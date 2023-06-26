@@ -5,7 +5,7 @@ services:
     container_name: hastebin
     image: arminfriedl/hastebin:latest
     volumes:
-      - ./hastebin/data:/app/data
+      - ./data:/app/data
     ports:
       - 8132:7777
     restart: unless-stopped

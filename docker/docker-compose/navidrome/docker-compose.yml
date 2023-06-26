@@ -9,7 +9,7 @@ services:
       ND_LOGLEVEL: info
       ND_BASEURL: ""
     volumes:
-      - "./navidrome/data:/data"
+      - "./data:/data"
       - "/path/to/your/music/files:/music:ro"
     ports:
       - 4533:4533

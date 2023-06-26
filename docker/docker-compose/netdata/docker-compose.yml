@@ -15,9 +15,9 @@ services:
       - /etc/os-release:/host/etc/os-release:ro
       - /etc/passwd:/host/etc/passwd:ro
       - /etc/group:/host/etc/group:ro
-#      - ./netdata/netdataconfig:/etc/netdata        # Optional
-#      - ./netdata/netdatalib:/var/lib/netdata       # Optional
-#      - ./netdata/netdatacache:/var/cache/netdata   # Optional
+#      - ./netdataconfig:/etc/netdata        # Optional
+#      - ./netdatalib:/var/lib/netdata       # Optional
+#      - ./netdatacache:/var/cache/netdata   # Optional
     ports:
       - 8166:19999
     restart: unless-stopped

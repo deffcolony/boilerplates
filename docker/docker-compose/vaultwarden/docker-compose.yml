@@ -28,7 +28,7 @@ services:
       SMTP_PASSWORD: YourReallyStrongPasswordHere
       SMTP_AUTH_MECHANISM: Plain # Possible values: “Plain” / “Login” / “Xoauth2”
     volumes:
-      - ./vaultwarden/data/:/data/
+      - ./data/:/data/
     ports:
       - 9200:80
     restart: unless-stopped

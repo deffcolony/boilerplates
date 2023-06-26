@@ -5,8 +5,8 @@ services:
     image: pufferpanel/pufferpanel:latest
     container_name: pufferpanel
     volumes:
-      - ./pufferpanel/config:/etc/pufferpanel
-      - ./pufferpanel/servers:/var/lib/pufferpanel
+      - ./config:/etc/pufferpanel
+      - ./servers:/var/lib/pufferpanel
     ports:
       - 8180:8080
       - 8181:5657

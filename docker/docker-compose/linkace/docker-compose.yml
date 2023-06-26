@@ -5,7 +5,7 @@ services:
     image: linkace/linkace:simple
     container_name: linkace
     volumes:
-      - ./linkace/logs:/app/storage/logs
+      - ./logs:/app/storage/logs
       - ./.env:/app/.env
     ports:
       - 8136:80
@@ -23,5 +23,5 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: ${DB_DATABASE}
     volumes:
-      - ./linkace/mysql:/var/lib/mysql
+      - ./mysql:/var/lib/mysql
     restart: unless-stopped

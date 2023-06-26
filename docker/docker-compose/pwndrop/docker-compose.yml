@@ -10,7 +10,7 @@ services:
       TZ: "Europe/Amsterdam"
       SECRET_PATH: "/pwndrop" # optional
     volumes:
-      - ./pwndrop/config:/config
+      - ./config:/config
     ports:
       - "8133:8080"
     restart: unless-stopped

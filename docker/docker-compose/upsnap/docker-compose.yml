@@ -22,7 +22,7 @@ services:
 #      NMAP_ARGS: -sP # optional, set this if your devices need special nmap args so they can be found (default: -sP)
 #      PAGE_TITLE: Custom Title # optional, set a custom page title (default: UpSnap)
     volumes:
-      - ./upsnap/db:/app/backend/db/
+      - ./db:/app/backend/db/
     restart: unless-stopped
     depends_on:
       redis:

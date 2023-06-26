@@ -12,8 +12,8 @@ services:
     devices:
       - /dev/dri:/dev/dri
     volumes:
-      - "./jellyfin/config:/config"
-      - "./jellyfin/cache:/cache"
+      - "./config:/config"
+      - "./cache:/cache"
       - "/media/disk/DISKNAME/SERIESPATH:/media/TV"
       - "/media/disk/DISKNAME/MOVIEPATH:/media/movies"
       - "/media/disk/DISKNAME/MUSICPATH:/media/music"

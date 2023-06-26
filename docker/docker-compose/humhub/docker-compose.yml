@@ -8,10 +8,10 @@ services:
       HUMHUB_DB_USER: humhub
       HUMHUB_DB_PASSWORD: humhub
     volumes:
-      - ./humhub/config:/var/www/localhost/htdocs/protected/config
-      - ./humhub/uploads:/var/www/localhost/htdocs/uploads
-      - ./humhub/modules:/var/www/localhost/htdocs/protected/modules
-      - ./humhub/themes:/var/www/localhost/htdocs/themes
+      - ./config:/var/www/localhost/htdocs/protected/config
+      - ./uploads:/var/www/localhost/htdocs/uploads
+      - ./modules:/var/www/localhost/htdocs/protected/modules
+      - ./themes:/var/www/localhost/htdocs/themes
     ports:
       - 8203:80
     restart: unless-stopped
@@ -27,5 +27,5 @@ services:
       MYSQL_USER: humhub
       MYSQL_PASSWORD: humhub
     volumes:
-      - ./humhub/humhubdb:/var/lib/mysql
+      - ./db:/var/lib/mysql
     restart: unless-stopped

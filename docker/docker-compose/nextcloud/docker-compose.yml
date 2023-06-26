@@ -10,7 +10,7 @@ services:
       MYSQL_USER: nextcloud
       MYSQL_HOST: db
     volumes:
-      - ./nextcloud/data:/var/www/html
+      - ./data:/var/www/html
     ports:
       - 8130:80
     restart: unless-stopped
@@ -27,5 +27,5 @@ services:
       MYSQL_DATABASE: nextcloud
       MYSQL_USER: nextcloud
     volumes:
-      - ./nextcloud/datadb:/var/lib/mysql
+      - ./db:/var/lib/mysql
     restart: unless-stopped

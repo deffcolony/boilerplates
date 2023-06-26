@@ -11,7 +11,7 @@ services:
       MEM_LIMIT: 1024 #optional
       MEM_STARTUP: 1024 #optional
     volumes:
-      - ./unifi-controller/config:/config
+      - ./config:/config
     ports:
       - 8443:8443
       - 3478:3478/udp

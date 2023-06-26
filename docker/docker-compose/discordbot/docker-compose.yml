@@ -7,5 +7,5 @@ services:
     environment:
       TOKEN: INSERTDISCORDBOTTOKENHEREEEE
     volumes:
-      - ./mydiscordbot01/data:/data
+      - ./data:/data
     restart: unless-stopped

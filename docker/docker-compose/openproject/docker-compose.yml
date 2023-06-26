@@ -9,8 +9,8 @@ services:
       PGID: 100
       SECRET_KEY_BASE: koZirTof1faEzGv7vGyKugOq6RnpislI
     volumes:
-      - ./openproject/config:/var/openproject/pgdata
-      - ./openproject/assets:/var/openproject/assets
+      - ./config:/var/openproject/pgdata
+      - ./assets:/var/openproject/assets
     ports:
       - 8204:80
     restart: unless-stopped
