@@ -7,7 +7,7 @@ services:
     container_name: portainer
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./portainer:/data
+      - ./remotemgnt/data:/data
     ports:
       - "8000:8000"
       - "9000:9000"
@@ -20,7 +20,7 @@ services:
     image: immybot/remotely:latest
     container_name: remotely
     volumes:
-      - ./remotely/data:/remotely-data
+      - ./remotemgnt/data:/remotely-data
     ports:
       - 8215:5000
     restart: unless-stopped
@@ -32,7 +32,7 @@ services:
     image: abesnier/guacamole   # The image didnt got updated --> jwetzell/guacamole
     container_name: guacamole
     volumes:
-      - ./guacamole/postgres:/config
+      - ./remotemgnt/postgres:/config
     ports:
       - 8210:8080
     restart: unless-stopped

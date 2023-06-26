@@ -15,8 +15,8 @@ services:
       DOLI_URL_ROOT: 'http://localhost'
       PHP_INI_DATE_TIMEZONE: 'Europe/Amsterdam'
     volumes:
-      - ./dolibarr/documents:/var/www/documents
-      - ./dolibarr/html/custom:/var/www/html/custom
+      - ./productivity/dolibarr/documents:/var/www/documents
+      - ./productivity/dolibarr/html/custom:/var/www/html/custom
     ports:
       - "8200:80"
     restart: unless-stopped
@@ -35,7 +35,7 @@ services:
       MYSQL_ROOT_PASSWORD: welkom123
       MYSQL_DATABASE: dolibarr
     volumes:
-      - ./dolibarr/mysql:/var/lib/mysql
+      - ./productivity/dolibarr/db:/var/lib/mysql
     restart: unless-stopped
     networks:
       - productivity
@@ -51,7 +51,7 @@ services:
       MARIADB_USER: mdict
       MARIADB_PASSWORD: Welkom123!
     volumes:
-      - ./glpi/mysql:/var/lib/mysql
+      - ./productivity/glpi/db:/var/lib/mysql
     restart: unless-stopped
     networks:
       - productivity
@@ -63,7 +63,7 @@ services:
     environment:
       TIMEZONE: Europe/Amsterdam
     volumes:
-      - ./glpi/data:/var/www/html/glpi
+      - ./productivity/glpi/data:/var/www/html/glpi
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     ports:
@@ -103,7 +103,7 @@ services:
     logging:
       driver: "none"
     volumes:
-      - ./wikijs/db-data:/var/lib/postgresql/data
+      - ./productivity/wikijs/db:/var/lib/postgresql/data
     restart: unless-stopped
     networks:
       - productivity
@@ -114,8 +114,8 @@ services:
     image: linkace/linkace:simple
     container_name: linkace
     volumes:
-      - ./linkace/logs:/app/storage/logs
-      - ./.env:/app/.env
+      - ./productivity/linkace/logs:/app/storage/logs
+      - ./productivity/linkace/.env:/app/.env
     ports:
       - 8136:80
     restart: unless-stopped
@@ -135,7 +135,7 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: ${DB_DATABASE}
     volumes:
-      - ./linkace/mysql:/var/lib/mysql
+      - ./productivity/linkace/db:/var/lib/mysql
     restart: unless-stopped
     networks:
       - productivity
@@ -152,7 +152,7 @@ services:
 #      SEAFILE_ADMIN_EMAIL: me@example.com
 #      SEAFILE_ADMIN_PASSWORD: asecret
     volumes:
-      - ./seafile/seafile-data:/shared
+      - ./productivity/seafile/data:/shared
     ports:
       - "8134:80"
     restart: unless-stopped
@@ -170,7 +170,7 @@ services:
       MYSQL_ROOT_PASSWORD: reallyreallystrongpassword
       MYSQL_LOG_CONSOLE: true
     volumes:
-      - ./seafile/seafile-mysql/db:/var/lib/mysql
+      - ./productivity/seafile/db:/var/lib/mysql
     restart: unless-stopped
     networks:
       - productivity
@@ -195,7 +195,7 @@ services:
       TZ: "Europe/Amsterdam"
       SECRET_PATH: "/pwndrop" # optional
     volumes:
-      - ./pwndrop/config:/config
+      - ./productivity/pwndrop/config:/config
     ports:
       - "8133:8080"
     restart: unless-stopped
@@ -209,7 +209,7 @@ services:
     container_name: gitlab-runner
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./gitlab/gitlab-runner:/etc/gitlab-runner
+      - ./productivity/gitlab/gitlab-runner:/etc/gitlab-runner
     restart: unless-stopped
     depends_on:
       - web
@@ -226,9 +226,9 @@ services:
         external_url 'https://gitlab.example.com'
         # Add any other gitlab.rb configuration here, each on its own line
     volumes:
-      - ./gitlab/config:/etc/gitlab
-      - ./gitlab/logs:/var/log/gitlab
-      - ./gitlab/data:/var/opt/gitlab
+      - ./productivity/gitlab/config:/etc/gitlab
+      - ./productivity/gitlab/logs:/var/log/gitlab
+      - ./productivity/gitlab/data:/var/opt/gitlab
     ports:
       - '8225:80'
       - '8226:443'

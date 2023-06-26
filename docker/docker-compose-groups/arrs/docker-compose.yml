@@ -36,7 +36,7 @@ services:
       LOG_LEVEL: debug
       TZ: Europe/Amsterdam
     volumes:
-      - ./jellyseerr/config:/app/config
+      - ./arrs/jellyseerr/config:/app/config
     ports:
       - 8111:5055
     restart: unless-stopped

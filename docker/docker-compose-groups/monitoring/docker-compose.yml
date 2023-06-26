@@ -6,7 +6,7 @@ services:
     image: louislam/uptime-kuma:latest
     container_name: uptimekuma
     volumes:
-      - ./uptime-kuma/data:/app/data
+      - ./monitoring/data:/app/data
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "8160:3001"
@@ -45,7 +45,7 @@ services:
     image: grafana/grafana-oss:latest
     container_name: grafana
     volumes:
-      - ./grafana/data:/var/lib/grafana
+      - ./monitoring/data:/var/lib/grafana
     ports:
       - "8164:3000"
     restart: unless-stopped
@@ -61,7 +61,7 @@ services:
       - "--config.file=/etc/prometheus:"
     volumes:
       - /etc/prometheus:/etc/prometheus
-      - ./prometheus/data:/prometheus
+      - ./monitoring/data:/prometheus
     ports:
       - "8163:9090"
     restart: unless-stopped
