@@ -42,7 +42,6 @@ services:
 networks:
   remotemgnt:
     driver: bridge
-    scope: local
     attachable: true
     internal: false
     ipam:

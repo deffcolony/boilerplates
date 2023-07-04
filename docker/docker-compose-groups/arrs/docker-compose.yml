@@ -163,7 +163,6 @@ services:
 networks:
   the_arrs:
     driver: bridge
-    scope: local
     attachable: true
     internal: false
     ipam:

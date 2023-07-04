@@ -83,7 +83,6 @@ services:
 networks:
   netmonitor:
     driver: bridge
-    scope: local
     attachable: true
     internal: false
     ipam:

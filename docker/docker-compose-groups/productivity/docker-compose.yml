@@ -239,7 +239,6 @@ services:
 networks:
   productivity:
     driver: bridge
-    scope: local
     attachable: true
     internal: false
     ipam:

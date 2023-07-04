@@ -1,0 +1,56 @@
+version: "3.8"
+
+services:
+  netbox:
+    image: lscr.io/linuxserver/netbox:latest
+    container_name: netbox
+    environment:
+      - PUID=1000
+      - PGID=1000
+#      - TZ=Etc/UTC
+      - SUPERUSER_EMAIL=info@mydomain.com
+      - SUPERUSER_PASSWORD=M3D8B4C7Q1b9c5z6
+      - ALLOWED_HOST=netbox.mydomain.com
+      - DB_NAME=netbox
+      - DB_USER=netbox
+      - DB_PASSWORD=U8C4S2K0L4c6n3s1l0
+      - DB_HOST=db
+      - DB_PORT=5432
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=q7v9x3V0z5c4n1R0B1X6
+      - REDIS_DB_TASK=0
+      - REDIS_DB_CACHE=1
+      - BASE_PATH= #optional
+      - REMOTE_AUTH_ENABLED= #optional
+      - REMOTE_AUTH_BACKEND= #optional
+      - REMOTE_AUTH_HEADER= #optional
+      - REMOTE_AUTH_AUTO_CREATE_USER= #optional
+      - REMOTE_AUTH_DEFAULT_GROUPS= #optional
+      - REMOTE_AUTH_DEFAULT_PERMISSIONS= #optional
+    volumes:
+      - ./config:/config
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - 9140:8000
+    restart: unless-stopped
+
+  db:
+    image: postgres:latest
+    container_name: netbox-postgres
+    environment:
+      - POSTGRES_DB=netbox  # Set the same value as DB_NAME
+      - POSTGRES_USER=netbox  # Set the same value as DB_USER
+      - POSTGRES_PASSWORD=U8C4S2K0L4c6n3s1l0  # Set the same value as DB_PASSWORD
+    volumes:
+      - ./db:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  redis:
+    image: redis:latest
+    container_name: netbox-redis
+    command: redis-server --requirepass q7v9x3V0z5c4n1R0B1X6  # Set your Redis password
+    volumes:
+      - ./redis:/data
+    restart: unless-stopped

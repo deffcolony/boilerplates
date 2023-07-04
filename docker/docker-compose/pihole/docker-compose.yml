@@ -7,7 +7,6 @@ version: "3.8"
 networks:
   MacConfig:
     driver: null
-    scope: local
     attachable: false
     internal: false
     driver_opts:
@@ -22,7 +21,6 @@ networks:
 
   MyMacVlan:
     driver: macvlan
-    scope: local
     attachable: true
     internal: false
     driver_opts:
