@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     docker = {
-      source = "kreuzwerker/docker"
+      source  = "kreuzwerker/docker"
       version = "~> 2.13.0"
     }
   }
@@ -10,9 +10,9 @@ terraform {
 provider "docker" {}
 
 resource "docker_container" "dashy" {
-  image        = "lissy93/dashy:latest"
-  name         = "dashy"
-  volumes      = [
+  image = "lissy93/dashy:latest"
+  name  = "dashy"
+  volumes = [
     "./dashy/public/conf.yml:/app/public/conf.yml",
     "./dashy/icons:/app/public/item-icons/icons"
   ]
@@ -20,5 +20,6 @@ resource "docker_container" "dashy" {
     internal = 80
     external = 8100
   }
-  restart      = "unless-stopped"
+
+  restart = "unless-stopped"
 }

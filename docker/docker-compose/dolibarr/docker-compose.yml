@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  web:
+  dolibarr:
     image: tuxgasy/dolibarr
     container_name: dolibarr
     environment:
@@ -22,7 +22,7 @@ services:
     depends_on:
       - mariadb
 
-  mariadb:
+  db:
     image: mariadb:latest
     container_name: dolibarr-mariadb
     environment:
@@ -31,5 +31,5 @@ services:
       MYSQL_ROOT_PASSWORD: welkom123
       MYSQL_DATABASE: dolibarr
     volumes:
-      - ./mysql:/var/lib/mysql
+      - ./db:/var/lib/mysql
     restart: unless-stopped

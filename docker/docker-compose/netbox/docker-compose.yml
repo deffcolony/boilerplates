@@ -8,8 +8,15 @@ services:
       - PUID=1000
       - PGID=1000
 #      - TZ=Etc/UTC
+      - SKIP_SUPERUSER=false
+      - SUPERUSER_NAME=admin
       - SUPERUSER_EMAIL=info@mydomain.com
       - SUPERUSER_PASSWORD=M3D8B4C7Q1b9c5z6
+#      - SKIP_STARTUP_SCRIPTS=false
+#      - HOUSEKEEPING_INTERVAL=86400
+#      - MAX_PAGE_SIZE=1000
+#      - RELEASE_CHECK_URL=https://api.github.com/repos/netbox-community/netbox/releases
+#      - METRICS_ENABLED=false
       - ALLOWED_HOST=netbox.mydomain.com
       - DB_NAME=netbox
       - DB_USER=netbox
@@ -28,6 +35,7 @@ services:
       - REMOTE_AUTH_AUTO_CREATE_USER= #optional
       - REMOTE_AUTH_DEFAULT_GROUPS= #optional
       - REMOTE_AUTH_DEFAULT_PERMISSIONS= #optional
+      - WEBHOOKS_ENABLED=true
     volumes:
       - ./config:/config
       - /etc/timezone:/etc/timezone:ro
