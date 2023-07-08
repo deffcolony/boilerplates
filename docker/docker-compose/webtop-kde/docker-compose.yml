@@ -4,8 +4,8 @@ version: "3.8"
 
 services:
   webtop:
-    image: lscr.io/linuxserver/webtop
-    container_name: webtop
+    image: lscr.io/linuxserver/webtop:ubuntu-kde
+    container_name: webtop-ubuntu-kde
     privileged: true
     shm_size: "1gb"
     devices:

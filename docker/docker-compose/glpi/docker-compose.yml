@@ -2,15 +2,15 @@ version: "3.8"
 
 services:
   mariadb:
-    image: mariadb:10.7
+    image: mariadb:latest
     container_name: glpi-mariadb
     environment:
       MARIADB_ROOT_PASSWORD: Wwelkom123!
       MARIADB_DATABASE: glpidb
-      MARIADB_USER: mdict
+      MARIADB_USER: glpi
       MARIADB_PASSWORD: Welkom123!
     volumes:
-      - ./mysql:/var/lib/mysql
+      - ./db:/var/lib/mysql
     restart: unless-stopped
 
   glpi:
