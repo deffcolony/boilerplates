@@ -1,0 +1,49 @@
+# playbook.yml
+
+- hosts: ubuntu_server
+  become: true
+
+  tasks:
+    - name: Install required packages
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - ssh
+        - neofetch
+        - net-tools
+        - netdiscover
+        - ncdu
+        - duf
+
+    - name: Modify SSH settings
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^#?PermitRootLogin"
+        line: "PermitRootLogin yes"
+
+    - name: Set timezone
+      timezone:
+        name: Europe/Amsterdam
+
+    - name: Install Docker dependencies
+      apt:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - gnupg
+        - lsb-release
+
+    - name: Install Docker
+      shell: curl -sSL https://get.docker.com/ | CHANNEL=stable bash
+
+    - name: Install Docker Compose
+      shell: >
+        DOCKER_COMPOSE_VERSION=$(curl --silent https://api.github.com/repos/docker/compose/releases/latest | jq .name -r);
+        DOCKER_CLI_PLUGIN_PATH=/usr/local/lib/docker/cli-plugins;
+        sudo mkdir -p $DOCKER_CLI_PLUGIN_PATH;
+        sudo curl -L "https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-$(uname -s)-$(uname -m)" -o $DOCKER_CLI_PLUGIN_PATH/docker-compose;
+        sudo chmod +x $DOCKER_CLI_PLUGIN_PATH/docker-compose
