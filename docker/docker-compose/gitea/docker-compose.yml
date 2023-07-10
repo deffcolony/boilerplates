@@ -24,7 +24,7 @@ services:
       - db
 
   db:
-    image: "mariadb:latest"
+    image: mariadb:latest
     container_name: gitea-mariadb
     environment:
       - MYSQL_ROOT_PASSWORD=gitea

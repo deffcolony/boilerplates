@@ -2,7 +2,7 @@ terraform {
   required_providers {
     docker = {
       source = "kreuzwerker/docker"
-      version = "~> 2.13.0"
+      version = "3.0.2"
     }
   }
 }
@@ -12,7 +12,7 @@ provider "docker" {}
 resource "docker_container" "portainer" {
   image        = "portainer/portainer-ce:latest" # For Business Edition use: portainer/portainer-ee:latest
   name         = "portainer"
-  volumes      = ["./portainer:/data", "/var/run/docker.sock:/var/run/docker.sock"]
+
   ports {
     internal = 8000
     external = 8000
@@ -21,5 +21,18 @@ resource "docker_container" "portainer" {
     internal = 9000
     external = 9000
   }
+  
   restart      = "always"
+
+  volumes {
+    container_path = "/data"
+    host_path      = "/home/gebruikersnaam/terraform/portainer/data"
+  }
+
+  volumes {
+    container_path = "/var/run/docker.sock"
+    host_path      = "/var/run/docker.sock"
+  }
+
+
 }

@@ -19,7 +19,7 @@ services:
       - db
 
   db:
-    image: mariadb:10.2
+    image: mariadb:latest
     container_name: humhub-mariadb
     environment:
       MYSQL_ROOT_PASSWORD: root

@@ -24,7 +24,7 @@ services:
       - db
 
   db:
-    image: mariadb
+    image: mariadb:latest
     container_name: ipboard-mariadb
     command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
     environment:
