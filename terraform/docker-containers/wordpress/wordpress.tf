@@ -35,15 +35,16 @@ resource "docker_container" "wordpress" {
 }
 
 resource "docker_container" "db" {
-  name  = "wordpress01-mariadb"
   image = "mariadb:latest"
+  name  = "wordpress01-mariadb"
+  restart = "unless-stopped"
+
   env = [
     "MYSQL_USER           = wordpress",
     "MYSQL_PASSWORD       = welkom123",
     "MYSQL_ROOT_PASSWORD  = welkom123",
     "MYSQL_DATABASE       = wpdocker"
   ]
-  restart = "unless-stopped"
 
   volumes {
     host_path      = "/home/gebruikersnaam/terraform/wordpress/www/db"

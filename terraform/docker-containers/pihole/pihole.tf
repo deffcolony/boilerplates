@@ -48,20 +48,33 @@ resource "docker_network" "my_macvlan" {
 resource "docker_container" "pihole" {
   name  = "pihole"
   image = "pihole/pihole:latest"
-
+  restart = "unless-stopped"
   cap_add = ["NET_ADMIN"]
 
-  environment = {
-    TZ           = "Europe/Amsterdam"
+  env = [
+    TZ          = "Europe/Amsterdam"
     WEBPASSWORD = "your-secret-password"
+  ]
+
+  volumes {
+    host_path      = "/home/gebruikersnaam/terraform/pihole/data"
+    container_path = "/etc/pihole"
   }
 
-  volumes = [
-    "./data:/etc/pihole",
-    "./dnsmasq:/etc/dnsmasq.d",
-    "./lighttpd:/etc/lighttpd",
-    "./errorpage:/var/www/html/pihole",
-  ]
+  volumes {
+    host_path      = "/home/gebruikersnaam/terraform/pihole/dnsmasq"
+    container_path = "/etc/dnsmasq.d"
+  }
+
+  volumes {
+    host_path      = "/home/gebruikersnaam/terraform/pihole/lighttpd"
+    container_path = "/etc/lighttpd"
+  }
+
+  volumes {
+    host_path      = "/home/gebruikersnaam/terraform/pihole/errorpage"
+    container_path = "/var/www/html/pihole"
+  }
 
   ports {
     internal = 53
@@ -92,8 +105,6 @@ resource "docker_container" "pihole" {
     external = 8121
     protocol = "tcp"
   }
-
-  restart = "unless-stopped"
 
   networks_advanced {
     name    = docker_network.my_macvlan.name

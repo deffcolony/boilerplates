@@ -2,7 +2,7 @@ terraform {
   required_providers {
     docker = {
       source  = "kreuzwerker/docker"
-      version = "~> 2.13.0"
+      version = "3.0.2"
     }
   }
 }
@@ -10,31 +10,42 @@ terraform {
 provider "docker" {}
 
 resource "docker_container" "webtop" {
-  image          = "lscr.io/linuxserver/webtop"
-  container_name = "webtop"
-  privileged     = true
-  shm_size       = "1gb"
+  image = "lscr.io/linuxserver/webtop"
+  name  = "webtop"
+  ports {
+    internal = 3000
+    external = 8211
+  }
+  restart = "unless-stopped"
+
+  env = [
+    "PUID       = 1000",
+    "PGID       = 1000",
+    "TZ         = Europe/Amsterdam",
+    "SUBFOLDER  = /",
+    "KEYBOARD   = en-us-qwerty",
+    "TITLE      = Webtop"
+  ]
+
+  privileged   = true
+  shm_size     = "1gb"
   devices = [
     "/dev/dri:/dev/dri",
   ]
   security_opt = [
     "seccomp=unconfined",
   ]
-  environment = {
-    PUID      = "1000"
-    PGID      = "1000"
-    TZ        = "Europe/Amsterdam"
-    SUBFOLDER = "/"
-    KEYBOARD  = "en-us-qwerty"
-    TITLE     = "Webtop"
+
+
+  volumes {
+    host_path      = "/home/gebruikersnaam/terraform/webtop/config"
+    container_path = "/config"
   }
-  volumes = [
-    "./config:/config",
-    "/var/run/docker.sock:/var/run/docker.sock",
-  ]
-  ports {
-    internal = 3000
-    external = 8211
+
+  volumes {
+    host_path      = "/var/run/docker.sock"
+    container_path = "/var/run/docker.sock"
   }
-  restart = "unless-stopped"
+
+
 }

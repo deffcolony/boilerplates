@@ -2,7 +2,7 @@ terraform {
   required_providers {
     docker = {
       source  = "kreuzwerker/docker"
-      version = "~> 2.13.0"
+      version = "3.0.2"
     }
   }
 }
@@ -10,18 +10,23 @@ terraform {
 provider "docker" {}
 
 resource "docker_container" "uptimekuma" {
-  image          = "louislam/uptime-kuma:latest"
-  container_name = "uptimekuma"
-
-  volumes = [
-    "./data:/app/data",
-    "/var/run/docker.sock:/var/run/docker.sock",
-  ]
-
+  image = "louislam/uptime-kuma:latest"
+  name  = "uptimekuma"
   ports {
     internal = 3001
     external = 8160
   }
-
   restart = "unless-stopped"
+
+  volumes {
+    host_path      = "/home/gebruikersnaam/terraform/uptimekuma/data"
+    container_path = "/app/data"
+  }
+
+  volumes {
+    host_path      = "/var/run/docker.sock"
+    container_path = "/var/run/docker.sock"
+  }
+
+
 }
