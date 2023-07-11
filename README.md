@@ -32,7 +32,7 @@ To use the scripts in this repository, simply clone the repository to your local
 
 
 ```sh
-git clone https://github.com/deffcolony/scripts.git
+git clone https://github.com/deffcolony/boilerplates.git
 ```
 
 
