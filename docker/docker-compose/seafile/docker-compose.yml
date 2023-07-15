@@ -6,7 +6,7 @@ services:
     container_name: seafile
     environment:
       DB_HOST: db
-      DB_ROOT_PASSWD: samereallyreallystrongpassword
+      DB_ROOT_PASSWD: 1A3cY5V4C3!CRyb
       TIME_ZONE: Europe/Amsterdam
 #      SEAFILE_ADMIN_EMAIL: me@example.com
 #      SEAFILE_ADMIN_PASSWORD: asecret
@@ -20,17 +20,17 @@ services:
       - memcached
 
   db:
-    image: mariadb:10.5
+    image: mariadb:latest
     container_name: seafile-mariadb
     environment:
-      MYSQL_ROOT_PASSWORD: reallyreallystrongpassword
+      MYSQL_ROOT_PASSWORD: 1A3cY5V4C3!CRyb
       MYSQL_LOG_CONSOLE: true
     volumes:
       - ./db:/var/lib/mysql
     restart: unless-stopped
 
   memcached:
-    image: memcached:1.6
+    image: memcached:1.6.18
     container_name: seafile-memcached
     command: memcached -m 256
     restart: unless-stopped
