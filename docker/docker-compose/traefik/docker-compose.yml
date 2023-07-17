@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  traefik:
+    image: traefik:2.6
+    container_name: traefik
+    ports:
+      - 80:80
+      - 443:443
+    #  - 8080:8080 # Dashboard port
+    volumes:
+      - ./data:/etc/traefik
+    networks:
+      - proxy # rename this to your custom docker network
+    labels:
+      traefik.http.routers.api.rule: Host(`traefik.YOURDOMAIN.COM`)    # Define the subdomain for the traefik dashboard.
+      traefik.http.routers.api.entryPoints: https    # Set the Traefik entry point.
+      traefik.http.routers.api.service: api@internal    # Enable Traefik API.
+      traefik.enable: true   # Enable Traefik reverse proxy for the Traefik dashboard.
+    environment:
+      DOCKER_HOST: dockersocket
+      CF_DNS_API_TOKEN: YOUR_SUPER_SECURE_CLOUDFLARE_API_TOKEN
+    restart: unless-stopped
+    depends_on:
+      - dockersocket
+
+  dockersocket:
+    image: tecnativa/docker-socket-proxy
+    container_name: dockersocket
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - proxy
+    environment:
+      CONTAINERS: 1
+      POST: 0
+    privileged: true
+    restart: unless-stopped
+
+
+networks:
+  proxy:
+    driver: bridge
+    external: true

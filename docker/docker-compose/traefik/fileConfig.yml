@@ -1,0 +1,85 @@
+http:
+
+  ## EXTERNAL ROUTING EXAMPLE - Only use if you want to proxy something manually ##
+  routers:
+    # Homeassistant routing example - Remove if not used
+    homeassistant:
+      entryPoints:
+        - https
+      rule: 'Host(`homeassistant.domain.com`)'
+      service: homeassistant
+      middlewares:
+        - "auth"
+
+  ## SERVICES EXAMPLE ##
+  services:
+    # Homeassistant service example - Remove if not used
+    homeassistant:
+      loadBalancer:
+        servers:
+          - url: http://192.168.60.5:8123/
+
+  ## MIDDLEWARES ##
+  middlewares:
+    auth:
+      forwardauth:
+        address: http://authentik-server:9160/outpost.goauthentik.io/auth/traefik
+        trustForwardHeader: true
+        authResponseHeaders:
+          - X-authentik-username
+          - X-authentik-groups
+          - X-authentik-email
+          - X-authentik-name
+          - X-authentik-uid
+          - X-authentik-jwt
+          - X-authentik-meta-jwks
+          - X-authentik-meta-outpost
+          - X-authentik-meta-provider
+          - X-authentik-meta-app
+          - X-authentik-meta-version
+
+# Plugins (optional)
+# Real IP from Cloudflare Proxy/Tunnel
+    cloudflarewarp:
+      plugin:
+        cloudflarewarp:
+          disableDefault: false
+          trustip: # Trust IPS not required if disableDefault is false - we will allocate Cloud Flare IPs automatically
+            - "2400:cb00::/32"
+
+    # Security headers
+    securityHeaders:
+      headers:
+        customResponseHeaders:
+          X-Robots-Tag: "none,noarchive,nosnippet,notranslate,noimageindex"
+          server: ""
+        sslProxyHeaders:
+          X-Forwarded-Proto: https
+        referrerPolicy: "same-origin"
+        hostsProxyHeaders:
+          - "X-Forwarded-Host"
+        customRequestHeaders:
+          X-Forwarded-Proto: "https"
+        customResponseHeaders:
+          X-Forwarded-Proto: "https"
+        contentTypeNosniff: true
+        browserXssFilter: true
+        forceSTSHeader: true
+        stsIncludeSubdomains: true
+        stsSeconds: 63072000
+        stsPreload: true
+    gzip:
+      compress: {}
+
+# Only use secure ciphers - https://ssl-config.mozilla.org/#server=traefik&version=2.6.0&config=intermediate&guideline=5.6
+tls:
+  options:
+    default:
+      minVersion: VersionTLS12
+      cipherSuites:
+        - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+        - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        - TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305
+        - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305
