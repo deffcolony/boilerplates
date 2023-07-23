@@ -51,6 +51,10 @@ services:
     ports:
       - "${COMPOSE_PORT_HTTP:-9000}:9000"
       - "${COMPOSE_PORT_HTTPS:-9443}:9443"
+    labels:
+      traefik.enable: true
+      traefik.http.routers.authentik.entryPoints: https
+      traefik.http.routers.authentik.rule: Host(`portal.DOMAIN.COM`) || HostRegexp(`{subdomain:[A-Za-z0-9](?:[A-Za-z0-9\-]{0,61}[A-Za-z0-9])?}.DOMAIN.COM`) && PathPrefix(`/outpost.goauthentik.io/`)
     depends_on:
       - postgresql
       - redis

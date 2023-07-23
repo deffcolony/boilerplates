@@ -11,7 +11,7 @@ services:
     volumes:
       - ./config:/config
     ports:
-      - 8190:9091
+      - 6190:9091
     restart: unless-stopped
     depends_on:
       - redis
