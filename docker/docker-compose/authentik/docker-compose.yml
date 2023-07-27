@@ -3,6 +3,7 @@ version: "3.8"
 services:
   postgresql:
     image: docker.io/library/postgres:12-alpine
+    container_name: authentik-postgresql
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
@@ -21,6 +22,7 @@ services:
 
   redis:
     image: docker.io/library/redis:alpine
+    container_name: authentik-redis
     command: --save 60 1 --loglevel warning
     restart: unless-stopped
     healthcheck:
@@ -34,6 +36,7 @@ services:
 
   server:
     image: ${AUTHENTIK_IMAGE:-ghcr.io/goauthentik/server}:${AUTHENTIK_TAG:-latest}
+    container_name: authentik
     restart: unless-stopped
     command: server
     environment:
@@ -61,6 +64,7 @@ services:
 
   worker:
     image: ${AUTHENTIK_IMAGE:-ghcr.io/goauthentik/server}:${AUTHENTIK_TAG:-latest}
+    container_name: authentik-worker
     restart: unless-stopped
     command: worker
     environment:

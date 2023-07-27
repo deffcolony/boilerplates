@@ -1,19 +1,49 @@
 version: "3.8"
 
 services:
+  crowdsec:
+    image: crowdsecurity/crowdsec:latest
+    container_name: crowdsec
+    environment:
+      GID: "${GID-1000}"
+      COLLECTIONS: "crowdsecurity/linux crowdsecurity/traefik"
+    volumes:
+      - ./crowdsec-config/acquis.yaml:/etc/crowdsec/acquis.yaml
+      - ./crowdsec-config:/etc/crowdsec/      
+      - ./crowdsec-db:/var/lib/crowdsec/data/
+      - ./traefik-logs:/var/log/traefik/:ro
+    restart: unless-stopped
+    networks:
+      - proxy
+    depends_on:
+      - traefik
+
+
+  bouncer-traefik:
+    image: docker.io/fbonalair/traefik-crowdsec-bouncer:latest
+    container_name: bouncer-traefik
+    environment:
+      CROWDSEC_BOUNCER_API_KEY: YOUR_SUPER_SECURE_CROWDSEC_BOUNCER_API_TOKEN
+      CROWDSEC_AGENT_HOST: crowdsec:8080
+      GIN_MODE: release
+    restart: unless-stopped
+    networks:
+      - proxy
+    depends_on:
+      - crowdsec
+
+
   traefik:
     image: traefik:latest
     container_name: traefik
     ports:
-      - 8190:80
-      - 8191:443
+      - 80:80
+      - 443:443
     #  - 8192:8080 # Dashboard port
     volumes:
-      - ./data:/etc/traefik
-      - /var/log/crowdsec:/var/log/crowdsec
+      - ./traefik-data:/etc/traefik
+      - ./crowdsec-logs:/var/log/crowdsec
       - /var/run/docker.sock:/var/run/docker.sock # Disable this when you enable dockersocket
-    networks:
-      - proxy
     labels:
       traefik.enable: true   # Enable Traefik reverse proxy for the Traefik dashboard.
       traefik.http.routers.api.rule: Host(`traefik.YOURDOMAIN.COM`)    # Define the subdomain for the traefik dashboard.
@@ -24,6 +54,8 @@ services:
 #      DOCKER_HOST: dockersocket
       CF_DNS_API_TOKEN: YOUR_SUPER_SECURE_CLOUDFLARE_API_TOKEN
     restart: unless-stopped
+    networks:
+      - proxy
 #    depends_on:
 #      - dockersocket
 
