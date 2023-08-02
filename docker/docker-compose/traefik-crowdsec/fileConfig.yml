@@ -1,5 +1,39 @@
 http:
 
+  ## EXTERNAL ROUTING EXAMPLE - Only use if you want to proxy something manually ##
+  routers:
+    # myservice router
+    myservice:
+      entryPoints:
+        - https
+      rule: 'Host(`myservice.YOURDOMAIN.COM`)'
+      service: myservice
+#      middlewares:
+#        - "auth"
+
+    # myservice2 router
+    myservice2:
+      entryPoints:
+        - https
+      rule: 'Host(`myservice2.YOURDOMAIN.COM`)'
+      service: myservice2
+#      middlewares:
+#        - "auth"
+
+  ## SERVICES EXAMPLE ##
+  services:
+    # service example
+    myservice:
+      loadBalancer:
+        servers:
+          - url: http://192.168.x.x:xxxx/
+
+    myservice2:
+      loadBalancer:
+        servers:
+          - url: http://192.168.x.x:xxxx/
+ 
+          
   ## MIDDLEWARES ##
   middlewares:
   # Only Allow Trafic trough Authentik
@@ -19,10 +53,11 @@ http:
           - X-authentik-meta-provider
           - X-authentik-meta-app
           - X-authentik-meta-version
+
     # Only Allow Local networks
     local-ipwhitelist:
       ipWhiteList:
-        sourceRange: 
+        sourceRange:
           - 127.0.0.1/32 # localhost
 
     # Crowdsec bouncer
@@ -39,7 +74,6 @@ http:
           disableDefault: false
           trustip: # Trust IPS not required if disableDefault is false - we will allocate Cloud Flare IPs automatically
             - "2400:cb00::/32"
-
 
     securityHeaders:
       headers:
@@ -63,7 +97,7 @@ http:
     gzip:
       compress: {}
 
-# Only use secure ciphers - https://ssl-config.mozilla.org/#server=traefik&version=2.6.0&config=intermediate&guideline=5.6              
+# Only use secure ciphers - https://ssl-config.mozilla.org/#server=traefik&version=2.6.0&config=intermediate&guideline=5.6
 tls:
   options:
     default:

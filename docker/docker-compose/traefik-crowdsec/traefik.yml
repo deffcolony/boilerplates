@@ -1,7 +1,6 @@
 global:
   checkNewVersion: true
   sendAnonymousUsage: false
-
 serversTransport:
   insecureSkipVerify: true
 
@@ -23,8 +22,7 @@ entryPoints:
         - 197.234.240.0/22
         - 198.41.128.0/17
         - 162.158.0.0/15
-        - 104.16.0.0/13
-        - 104.24.0.0/14
+        - 104.16.0.0/12
         - 172.64.0.0/13
         - 131.0.72.0/22
         - 2400:cb00::/32
@@ -45,7 +43,7 @@ entryPoints:
   https:
     address: :443
     forwardedHeaders:
-      # Reuse list of Cloudflare Trusted IP's above for HTTPS requests
+     # Reuse list of Cloudflare Trusted IP's above for HTTPS requests
       trustedIPs: *trustedIps
     http:
       tls:
@@ -61,6 +59,7 @@ entryPoints:
         - gzip@file
         - cloudflarewarp@file
 
+
 providers:
   providersThrottleDuration: 2s
 
@@ -72,12 +71,12 @@ providers:
   # Docker provider for connecting all apps that are inside of the docker network
   docker:
     watch: true
-    network: management    # Add Your Docker Network Name Here
+    network: proxy # Add Your Docker Network Name Here
     # Default host rule to containername.domain.example
-    defaultRule: "Host(`{{ lower (trimPrefix `/` .Name )}}.YOURDOMAIN.COM`)"    # Replace with your domain
+    defaultRule: "Host(`{{ index .Labels \"com.docker.compose.service\"}}.YOURDOMAIN.COM`)"
     swarmModeRefreshSeconds: 15s
     exposedByDefault: false
-    #endpoint: "tcp://dockersocket:2375" # Uncomment if you are using docker socket proxy
+    endpoint: "unix:///var/run/docker.sock"
 
 # Enable traefik ui
 api:
@@ -87,20 +86,20 @@ api:
 # Log level INFO|DEBUG|ERROR
 log:
   level: INFO
-
+  
 accessLog:
-  filePath: "/var/log/'sec/traefik.log"
+  filePath: "/var/log/crowdsec/traefik.log"
   bufferingSize: 50
 
 # Use letsencrypt to generate ssl serficiates
 certificatesResolvers:
   letsencrypt:
     acme:
-      email: info@YOURDOMAIN.COM
+      email: info@YOURDOMAIN.COM  # change to your provider account email address.
       storage: /etc/traefik/acme.json
       dnsChallenge:
         provider: cloudflare
-        # Used to make sure the dns challenge is propagated to the rights dns servers
+       # Used to make sure the dns challenge is propagated to the rights dns servers
         resolvers:
           - "1.1.1.1:53"
           - "1.0.0.1:53"

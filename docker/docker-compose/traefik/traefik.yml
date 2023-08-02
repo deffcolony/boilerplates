@@ -43,7 +43,7 @@ entryPoints:
   https:
     address: :443
     forwardedHeaders:
-      # Reuse list of Cloudflare Trusted IP's above for HTTPS requests
+     # Reuse list of Cloudflare Trusted IP's above for HTTPS requests
       trustedIPs: *trustedIps
     http:
       tls:
@@ -56,7 +56,7 @@ entryPoints:
       middlewares:
         - securityHeaders@file
         - gzip@file
-        - cloudflarewarp@file
+
 
 providers:
   providersThrottleDuration: 2s
@@ -83,25 +83,21 @@ api:
 
 # Log level INFO|DEBUG|ERROR
 log:
-  level: DEBUG
+  level: INFO
+  
+accessLog:
+  filePath: "/var/log/crowdsec/traefik.log"
+  bufferingSize: 50
 
 # Use letsencrypt to generate ssl serficiates
 certificatesResolvers:
   letsencrypt:
     acme:
-      email: YOUR@EMAIL.COM  # change to your provider account email address.
+      email: info@YOURDOMAIN.COM  # change to your provider account email address.
       storage: /etc/traefik/acme.json
       dnsChallenge:
         provider: cloudflare
-        # Used to make sure the dns challenge is propagated to the rights dns servers
+       # Used to make sure the dns challenge is propagated to the rights dns servers
         resolvers:
           - "1.1.1.1:53"
           - "1.0.0.1:53"
-
-# Plugins (optional)
-# Real IP from Cloudflare Proxy/Tunnel
-experimental:
-  plugins:
-    cloudflarewarp:
-      moduleName: "github.com/BetterCorp/cloudflarewarp"
-      version: "v1.3.3"

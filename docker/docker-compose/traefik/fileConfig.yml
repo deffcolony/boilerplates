@@ -2,28 +2,44 @@ http:
 
   ## EXTERNAL ROUTING EXAMPLE - Only use if you want to proxy something manually ##
   routers:
-    # Homeassistant routing example - Remove if not used
-    homeassistant:
+    # myservice router
+    myservice:
       entryPoints:
         - https
-      rule: 'Host(`homeassistant.domain.com`)'
-      service: homeassistant
-      middlewares:
-        - "auth"
+      rule: 'Host(`myservice.YOURDOMAIN.COM`)'
+      service: myservice
+#      middlewares:
+#        - "auth"
+
+    # myservice2 router
+    myservice2:
+      entryPoints:
+        - https
+      rule: 'Host(`myservice2.YOURDOMAIN.COM`)'
+      service: myservice2
+#      middlewares:
+#        - "auth"
 
   ## SERVICES EXAMPLE ##
   services:
-    # Homeassistant service example - Remove if not used
-    homeassistant:
+    # service example
+    myservice:
       loadBalancer:
         servers:
-          - url: http://192.168.60.5:8123/
+          - url: http://192.168.x.x:xxxx/
 
+    myservice2:
+      loadBalancer:
+        servers:
+          - url: http://192.168.x.x:xxxx/
+ 
+          
   ## MIDDLEWARES ##
   middlewares:
+  # Only Allow Trafic trough Authentik
     auth:
       forwardauth:
-        address: http://authentik-server:9160/outpost.goauthentik.io/auth/traefik
+        address: http://authentik:9000/outpost.goauthentik.io/auth/traefik
         trustForwardHeader: true
         authResponseHeaders:
           - X-authentik-username
@@ -38,20 +54,18 @@ http:
           - X-authentik-meta-app
           - X-authentik-meta-version
 
-# Plugins (optional)
-# Real IP from Cloudflare Proxy/Tunnel
-    cloudflarewarp:
-      plugin:
-        cloudflarewarp:
-          disableDefault: false
-          trustip: # Trust IPS not required if disableDefault is false - we will allocate Cloud Flare IPs automatically
-            - "2400:cb00::/32"
+    # Only Allow Local networks
+    local-ipwhitelist:
+      ipWhiteList:
+        sourceRange:
+          - 127.0.0.1/32 # localhost
 
-    # Security headers
+
     securityHeaders:
       headers:
         customResponseHeaders:
           X-Robots-Tag: "none,noarchive,nosnippet,notranslate,noimageindex"
+          X-Forwarded-Proto: "https"
           server: ""
         sslProxyHeaders:
           X-Forwarded-Proto: https
@@ -59,8 +73,6 @@ http:
         hostsProxyHeaders:
           - "X-Forwarded-Host"
         customRequestHeaders:
-          X-Forwarded-Proto: "https"
-        customResponseHeaders:
           X-Forwarded-Proto: "https"
         contentTypeNosniff: true
         browserXssFilter: true
