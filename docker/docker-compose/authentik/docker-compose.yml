@@ -20,6 +20,7 @@ services:
     env_file:
       - .env
 
+
   redis:
     image: docker.io/library/redis:alpine
     container_name: authentik-redis
@@ -33,6 +34,7 @@ services:
       timeout: 3s
     volumes:
       - ./redis:/data
+
 
   server:
     image: ${AUTHENTIK_IMAGE:-ghcr.io/goauthentik/server}:${AUTHENTIK_TAG:-latest}
@@ -57,7 +59,7 @@ services:
     labels:
       traefik.enable: true
       traefik.http.routers.authentik.entryPoints: https
-      traefik.http.routers.authentik.rule: Host(`portal.DOMAIN.COM`) || HostRegexp(`{subdomain:[A-Za-z0-9](?:[A-Za-z0-9\-]{0,61}[A-Za-z0-9])?}.DOMAIN.COM`) && PathPrefix(`/outpost.goauthentik.io/`)
+      traefik.http.routers.authentik.rule: Host(`portal.DOMAIN.COM`) || HostRegexp(`{subdomain:[a-z0-9]+}.DOMAIN.COM`) && PathPrefix(`/outpost.goauthentik.io/`)
     depends_on:
       - postgresql
       - redis
@@ -73,12 +75,6 @@ services:
       AUTHENTIK_POSTGRESQL__USER: ${PG_USER:-authentik}
       AUTHENTIK_POSTGRESQL__NAME: ${PG_DB:-authentik}
       AUTHENTIK_POSTGRESQL__PASSWORD: ${PG_PASS}
-    # `user: root` and the docker socket volume are optional.
-    # See more for the docker socket integration here:
-    # https://goauthentik.io/docs/outposts/integrations/docker
-    # Removing `user: root` also prevents the worker from fixing the permissions
-    # on the mounted folders, so when removing this make sure the folders have the correct UID/GID
-    # (1000:1000 by default)
     user: root
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -90,4 +86,3 @@ services:
     depends_on:
       - postgresql
       - redis
-      
