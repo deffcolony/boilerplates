@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  fusionpbx:
+    image: fusionpbx-debian11
+    container_name: fusionpbx
+    volumes:
+      - ./config:/etc/fusionpbx
+#      - ./db:/var/lib/postgresql/data
+    ports:
+      - "8080:80"
+      - "443:443"
+      - "5060:5060"
+    restart: unless-stopped
+
+
+# ---testing if db is needed since install.sh already deploys db---
+
+#  db:
+#    image: postgres:latest
+#    container_name: fusionpbx-postgres
+#    environment:
+#      - POSTGRES_DB=fusionpbx  # Set the same value as DB_NAME
+#      - POSTGRES_USER=fusionpbx  # Set the same value as DB_USER
+#      - POSTGRES_PASSWORD=U7hB32cZc6n3s1l0  # Set the same value as DB_PASSWORD
+#    volumes:
+#      - ./db:/var/lib/postgresql/data
+#    restart: unless-stopped
+
+
