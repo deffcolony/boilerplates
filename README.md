@@ -1,6 +1,6 @@
 <h1 align="center">Boilerplates</h1>
 <p align="center">
-  <i>"Simplify your life and streamline your workflow with our collection of usefull boilerplates"</i>
+  <i>"Simplify your life and streamline your workflow with our collection of useful boilerplates"</i>
    <br/>
   <img width="120" src="https://i.imgur.com/j3XbVfG.png" />
   <br/>
