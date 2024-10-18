@@ -3,32 +3,34 @@ version: "3.8"
 services:
   crowdsec:
     image: crowdsecurity/crowdsec:latest
-    container_name: crowdsec
+    container_name: traefik_crowdsec
+#    restart: unless-stopped
     environment:
       GID: "${GID-1000}"
       COLLECTIONS: "crowdsecurity/linux crowdsecurity/traefik"
     volumes:
       - ./crowdsec-config/acquis.yaml:/etc/crowdsec/acquis.yaml
-      - ./crowdsec-config:/etc/crowdsec/      
+      - ./crowdsec-config:/etc/crowdsec/
       - ./crowdsec-db:/var/lib/crowdsec/data/
-      - ./traefik-logs:/var/log/traefik/:ro
-    restart: unless-stopped
+#      - ./traefik-logs:/var/log/traefik/:ro
+    ports:
+      - 6060:6060
     networks:
-      - proxy
+      - management
     depends_on:
       - traefik
 
 
   bouncer-traefik:
     image: docker.io/fbonalair/traefik-crowdsec-bouncer:latest
-    container_name: bouncer-traefik
+    container_name: traefik_crowdsec_bouncher
+    restart: unless-stopped
     environment:
       CROWDSEC_BOUNCER_API_KEY: YOUR_SUPER_SECURE_CROWDSEC_BOUNCER_API_TOKEN
       CROWDSEC_AGENT_HOST: crowdsec:8080
       GIN_MODE: release
-    restart: unless-stopped
     networks:
-      - proxy
+      - management
     depends_on:
       - crowdsec
 
@@ -36,44 +38,71 @@ services:
   traefik:
     image: traefik:latest
     container_name: traefik
+    hostname: traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     ports:
-      - 80:80
-      - 443:443
-    #  - 8192:8080 # Dashboard port
+      - 80:80 # local http
+#      - 81:81 # external http
+      - 443:443 # local https
+#      - 444:444 # external https
+#      - 443:443/tcp # Uncomment if you want HTTP3
+#      - 443:443/udp # Uncomment if you want HTTP3
+#      - 8192:8080 # Uncomment to enable Dashboard NOT RECOMMENDED FOR PRODUCTION
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - ./traefik-data:/etc/traefik
-      - ./crowdsec-logs:/var/log/crowdsec
+#      - /home/axdocker/docker/grafana/fluent/logs:/logs # UNCOMMENT FOR GRAFANA LOGGING OF TRAEFIK
+#      - /home/axdocker/docker/grafana/fluent/logs:/var/log/crowdsec # UNCOMMENT FOR GRAFANA LOGGING OF TRAEFIK
       - /var/run/docker.sock:/var/run/docker.sock # Disable this when you enable dockersocket
-    labels:
-      traefik.enable: true   # Enable Traefik reverse proxy for the Traefik dashboard.
-      traefik.http.routers.api.rule: Host(`traefik.YOURDOMAIN.COM`)    # Define the subdomain for the traefik dashboard.
-      traefik.http.routers.api.entryPoints: https    # Set the Traefik entry point.
-      traefik.http.routers.api.service: api@internal    # Enable Traefik API.
-      traefik.http.routers.api.middlewares: auth@file
     environment:
 #      DOCKER_HOST: dockersocket
+      CF_API_EMAIL: myemail@DOMAIN.COM
       CF_DNS_API_TOKEN: YOUR_SUPER_SECURE_CLOUDFLARE_API_TOKEN
-    restart: unless-stopped
     networks:
-      - proxy
+      - management
 #    depends_on:
 #      - dockersocket
 
 #  dockersocket:
 #    image: tecnativa/docker-socket-proxy
 #    container_name: dockersocket
+#    restart: unless-stopped
 #    volumes:
 #      - /var/run/docker.sock:/var/run/docker.sock
 #    networks:
-#      - proxy
+#      - management
 #    environment:
 #      CONTAINERS: 1
 #      POST: 0
 #    privileged: true
-#    restart: unless-stopped
 
+
+  error-pages:
+    image: ghcr.io/tarampampam/error-pages:latest
+    container_name: error-pages
+    restart: unless-stopped
+    environment:
+      TEMPLATE_NAME: connection # set the error pages template
+    ports:
+      - "8176:8080"
+#    labels:
+#      traefik.enable: true
+#      traefik.http.routers.error-pages-router.rule: HostRegexp(`{host:.+}`)
+#      traefik.http.routers.error-pages-router.priority: 1
+#      traefik.http.routers.error-pages-router.entrypoints: web
+#      traefik.http.routers.error-pages-router.middlewares: error-pages-middleware
+#      traefik.http.middlewares.error-pages-middleware.errors.status: 400-599
+#      traefik.http.middlewares.error-pages-middleware.errors.service: error-pages-service
+#      traefik.http.middlewares.error-pages-middleware.errors.query: /{status}/
+#      traefik.http.services.error-pages-service.loadbalancer.server.port: 8175
+    depends_on:
+      - traefik
+    networks:
+      - management
 
 networks:
-  proxy:
+  management:
     driver: bridge
     external: true

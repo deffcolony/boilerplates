@@ -48,17 +48,22 @@ entryPoints:
     http:
       tls:
         # Generate a wildcard domain certificate
-        certResolver: letsencrypt
+        certResolver: cloudflare
         domains:
-          - main: YOURDOMAIN.COM
+#          - main: "local.DOMAIN.COM" # uncomment to enable certs for internal domain DNS
+#            sans:                   # uncomment to enable certs for internal domain DNS
+#              - "*.local.DOMAIN.COM" # uncomment to enable certs for internal domain DNS
+          - main: "DOMAIN.COM"
             sans:
-              - '*.YOURDOMAIN.COM'
+              - "*.DOMAIN.COM"
       middlewares:
         - securityHeaders@file
         - crowdsec-bouncer@file
         - gzip@file
         - cloudflarewarp@file
 
+  metrics:
+      address: ":8083"
 
 providers:
   providersThrottleDuration: 2s
@@ -73,8 +78,8 @@ providers:
     watch: true
     network: proxy # Add Your Docker Network Name Here
     # Default host rule to containername.domain.example
-    defaultRule: "Host(`{{ index .Labels \"com.docker.compose.service\"}}.YOURDOMAIN.COM`)"
-    swarmModeRefreshSeconds: 15s
+    defaultRule: "Host(`{{ index .Labels \"com.docker.compose.service\"}}.DOMAIN.COM`)"
+#    swarmModeRefreshSeconds: 15s # Enable if swarm is used https://doc.traefik.io/traefik/master/migration/v2-to-v3/
     exposedByDefault: false
     endpoint: "unix:///var/run/docker.sock"
 
@@ -82,27 +87,64 @@ providers:
 api:
   dashboard: true
   insecure: true
+  debug: true
 
-# Log level INFO|DEBUG|ERROR
+metrics:
+  prometheus:
+    addEntryPointsLabels: true
+    addRoutersLabels: true
+    addServicesLabels: true
+    entryPoint: metrics
+
+# :8083/ping
+ping:
+  entryPoint: metrics
+
+
 log:
-  level: INFO
-  
+  level: INFO # DEBUG, INFO, WARN, ERROR, FATAL, and PANIC
+  filePath: "/logs/traefik.log"
+  format: json
+
 accessLog:
-  filePath: "/var/log/crowdsec/traefik.log"
+  filePath: "/var/log/crowdsec/traefik_access.log"
   bufferingSize: 50
+  format: json
+  filters:
+    statusCodes:
+      - "400-404"
+      - "300-302"
+      - "500"
+    retryAttempts: true
+    minDuration: "10ms"
+  # fields:
+  #   defaultMode: foobar
+  #   names:
+  #     name0: foobar
+  #     name1: foobar
+  #   headers:
+  #     defaultMode: foobar
+  #     names:
+  #       name0: foobar
+  #       name1: foobar
+#
 
 # Use letsencrypt to generate ssl serficiates
 certificatesResolvers:
-  letsencrypt:
+  cloudflare:
     acme:
-      email: info@YOURDOMAIN.COM  # change to your provider account email address.
+      email: info@DOMAIN.COM  # change to your provider account email address.
       storage: /etc/traefik/acme.json
+      caServer: https://acme-v02.api.letsencrypt.org/directory # prod (default)
+#      caServer: https://acme-staging-v02.api.letsencrypt.org/directory # staging
       dnsChallenge:
         provider: cloudflare
-       # Used to make sure the dns challenge is propagated to the rights dns servers
+#        disablePropagationCheck: true # uncomment this if you have issues pulling certificates through cloudflare, By setting this flag to true disables the need to wait for the propagation of the TXT record to all authoritative name servers.
+#        delayBeforeCheck: 60s # uncomment along with disablePropagationCheck if needed to ensure the TXT record is ready before verification is attempted
         resolvers:
           - "1.1.1.1:53"
           - "1.0.0.1:53"
+
 
 # Plugins (optional)
 # Real IP from Cloudflare Proxy/Tunnel

@@ -1,12 +1,21 @@
 http:
-
   ## EXTERNAL ROUTING EXAMPLE - Only use if you want to proxy something manually ##
   routers:
+
+    # traefik router
+    traefik:
+      entryPoints:
+        - https
+      rule: "Host(`traefik.DOMAIN.COM`) || Host(`traefik.local.DOMAIN.COM`)"
+      service: api@internal
+      middlewares:
+        - traefikAuth
+
     # myservice router
     myservice:
       entryPoints:
         - https
-      rule: 'Host(`myservice.YOURDOMAIN.COM`)'
+      rule: 'Host(`myservice.DOMAIN.COM`)'
       service: myservice
 #      middlewares:
 #        - "auth"
@@ -15,12 +24,15 @@ http:
     myservice2:
       entryPoints:
         - https
-      rule: 'Host(`myservice2.YOURDOMAIN.COM`)'
+      rule: 'Host(`myservice2.DOMAIN.COM`)'
       service: myservice2
 #      middlewares:
 #        - "auth"
 
-  ## SERVICES EXAMPLE ##
+##======================SERVICES======================##
+  # Define the base URL for srv-prod-1
+  #srv_prod_1_url: &srv_prod_1_url http://192.168.x.x
+
   services:
     # service example
     myservice:
@@ -32,10 +44,23 @@ http:
       loadBalancer:
         servers:
           - url: http://192.168.x.x:xxxx/
- 
-          
-  ## MIDDLEWARES ##
+
+
+##======================MIDDLEWARES======================##
   middlewares:
+    error-pages-mw:
+      errors:
+        status:
+          - "400-599"
+        service: error-pages
+        query: "/{status}.html"
+
+    # Only Allow Local networks
+    ip-allowlist:
+      ipAllowList:
+        sourceRange:
+          - 127.0.0.1/32 # localhost
+
   # Only Allow Trafic trough Authentik
     auth:
       forwardauth:
@@ -54,11 +79,12 @@ http:
           - X-authentik-meta-app
           - X-authentik-meta-version
 
-    # Only Allow Local networks
-    local-ipwhitelist:
-      ipWhiteList:
-        sourceRange:
-          - 127.0.0.1/32 # localhost
+  # Auth for traefik dashboard. Username & password = admin
+  # Generate new users by: "apt install apache2-utils" and then "htpasswd -nb username password"
+    traefikAuth:
+      basicAuth:
+        users:
+          - "admin:$apr1$2fcluobe$vf5Hcx2yoJAdPz6cwYs.s."
 
     # Crowdsec bouncer
     crowdsec-bouncer:
@@ -78,24 +104,25 @@ http:
     securityHeaders:
       headers:
         customResponseHeaders:
-          X-Robots-Tag: "none,noarchive,nosnippet,notranslate,noimageindex"
-          X-Forwarded-Proto: "https"
-          server: ""
+          X-Robots-Tag: "none,noarchive,nosnippet,notranslate,noimageindex" # Prevents search engines from indexing the page and displaying it in search results.
+          X-Forwarded-Proto: "https" # Indicates that the original request was sent over HTTPS.
+          server: "" # Hides the server version and type by sending an empty Server header.
         sslProxyHeaders:
-          X-Forwarded-Proto: https
-        referrerPolicy: "same-origin"
+          X-Forwarded-Proto: https # Indicates to the backend server that the original request was sent over HTTPS.
+        referrerPolicy: "same-origin" # Sends the referrer information only when navigating within the same origin.
         hostsProxyHeaders:
-          - "X-Forwarded-Host"
+          - "X-Forwarded-Host" # Provides the original host requested by the client when proxies are used.
         customRequestHeaders:
           X-Forwarded-Proto: "https"
-        contentTypeNosniff: true
-        browserXssFilter: true
-        forceSTSHeader: true
-        stsIncludeSubdomains: true
-        stsSeconds: 63072000
-        stsPreload: true
+        contentTypeNosniff: true # Prevents browsers from interpreting files as a different MIME type.
+        browserXssFilter: true # Enables the cross-site scripting (XSS) filter in browsers.
+        forceSTSHeader: true # Forces browsers to use HTTPS and prevents them from using HTTP.
+        stsIncludeSubdomains: true # Applies the STS policy to all subdomains.
+        stsSeconds: 63072000 # Specifies the duration (in seconds) for which the STS policy is in effect.
+        stsPreload: true # Indicates the domain's intention to be included in browsers' preloaded HSTS lists.
     gzip:
-      compress: {}
+      compress: {} # Enables gzip compression for responses to reduce bandwidth.
+
 
 # Only use secure ciphers - https://ssl-config.mozilla.org/#server=traefik&version=2.6.0&config=intermediate&guideline=5.6
 tls:
