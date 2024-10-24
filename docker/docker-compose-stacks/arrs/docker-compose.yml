@@ -1,0 +1,391 @@
+version: "3.8"
+
+###--- Jellyfin Image - Media Library / Player - Used to play the media content ---###
+services:
+  jellyfin:
+    container_name: jellyfin
+    image: jellyfin/jellyfin:latest
+    restart: unless-stopped
+    devices:
+#      - /dev/dri:/dev/dri # Directory containing all Direct Rendering Infrastructure (DRI) devices, including render and card devices, for general GPU access
+#      - /dev/dri/card0:/dev/dri/card0 # FULL GPU 01 access
+      - /dev/dri/card1:/dev/dri/card1 # FULL GPU 02 access
+      - /dev/dri/renderD128:/dev/dri/renderD128 # GPU render only 01 access
+#      - /dev/dri/renderD129:/dev/dri/renderD129 # GPU render only 02 access
+#      - /dev/vcsm:/dev/vcsm # Raspberry Pi VideoCore Shared Memory (VCSM) device, used on Raspberry Pi for managing shared memory between GPU and CPU
+#      - /dev/vchiq:/dev/vchiq # Raspberry Pi VideoCore Host Interface Queue (VCHIQ) device, used on Raspberry Pi for communication between the CPU and GPU
+#      - /dev/video10:/dev/video10 # Video device interface 10, typically used for video capture or encoding hardware (often for camera or multimedia applications)
+#      - /dev/video11:/dev/video11 # Video device interface 11, similar to video10, for additional video capture or encoding capabilities
+#      - /dev/video12:/dev/video12 # Video device interface 12, another video device for capturing or encoding, usually used in multimedia or camera applications
+    environment:
+      PGID: 1000
+      PUID: 1000
+      UMASK: 002
+      TZ: Etc/UTC
+    volumes:
+      - /media/disk/exthdd01/extarrs/data/library/tv:/media/TV
+      - /media/disk/exthdd01/extarrs/data/library/movies:/media/movies
+      - /media/disk/exthdd01/extarrs/data/library/music:/media/music
+      - /media/disk/exthdd01/extarrs/data/library/pictures:/media/pictures
+      - /media/disk/exthdd01/extarrs/data/library/books:/media/books
+      - ./appdata/jellyfin/config:/config
+      - ./appdata/jellyfin/cache:/cache"
+      - /dev/shm:/transcode
+#      - /opt/vc/lib:/opt/vc/lib # Raspberry Pi GPU libraries for multimedia operations
+    ports:
+      - 8110:8096
+    networks:
+      media:
+        ipv4_address: 10.0.30.100
+
+
+###--- ErsatzTV Image - IPTV Server. - configure and stream custom live TV channels using the media library. ---###
+  # Latest Release Tags
+  # Base (software transcoding): jasongdove/ersatztv:latest
+  # Nvidia hardware-accelerated transcoding: jasongdove/ersatztv:latest-nvidia
+  # VAAPI (Intel, AMD) hardware-accelerated transcoding: jasongdove/ersatztv:latest-vaapi
+
+  # Development Tags
+  # Development tags update much more frequently, but have the potential to be less stable than releases.
+  # Base (software transcoding): jasongdove/ersatztv:develop
+  # Nvidia hardware-accelerated transcoding: jasongdove/ersatztv:develop-nvidia
+  # VAAPI (Intel, AMD) hardware-accelerated transcoding: jasongdove/ersatztv:develop-vaapi
+
+#  ersatztv:
+#    image: jasongdove/ersatztv:latest-vaapi
+#    container_name: ersatztv
+#    restart: unless-stopped
+#    environment:
+#      TZ: Etc/UTC
+#    ports:
+#      - 8294:8409
+#    volumes:
+#      - ./appdata/ersatztv/config:/root/.local/share/ersatztv
+#    networks:
+#      media:
+#        ipv4_address: 10.0.30.112
+# ---------------
+# Media paths not needed if you connect ErsatzTV to jellyfin with API key
+#      - /media/disk/exthdd01/extarrs/data/library/tv:/media/TV
+#      - /media/disk/exthdd01/extarrs/data/library/movies:/media/movies
+#      - /media/disk/exthdd01/extarrs/data/library/music:/media/music
+#      - /media/disk/exthdd01/extarrs/data/library/pictures:/media/pictures
+#      - /media/disk/exthdd01/extarrs/data/library/books:/media/books
+# ---------------
+
+###--- Jellyseerr Image - Request management and media discovery tool ---###
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    restart: unless-stopped
+    environment:
+      PGID: 1000
+      PUID: 1000
+      UMASK: 002
+      LOG_LEVEL: debug
+      TZ: Etc/UTC
+    volumes:
+      - ./appdata/jellyseerr/config:/app/config
+    ports:
+      - 8111:5055
+    networks:
+      media:
+        ipv4_address: 10.0.30.101
+
+
+###--- qBittorrent Image - Download Client - Used to download torrent files ---###
+  qbittorrent:
+    image: ghcr.io/hotio/qbittorrent:latest
+    container_name: qbittorrent
+    restart: unless-stopped
+    environment:
+      PUID: 1000
+      PGID: 1000
+      UMASK: 002
+      TZ: Etc/UTC
+      WEBUI_PORTS: 8080/tcp,8080/udp
+    ports:
+      - 8290:8080
+      - 8291:6881
+      - 8291:6881/udp
+    volumes:
+      - ./appdata/qbittorrent/config:/config
+      - ./data/torrents:/data/torrents
+    networks:
+      media:
+        ipv4_address: 10.0.30.102
+
+###--- qBitmanage Image - qBittorrent manager - Used to run automated tasks for qBittorrent ---###
+  qbitmanage:
+    image: ghcr.io/stuffanthings/qbit_manage:latest
+    container_name: qbitmanage
+    restart: unless-stopped
+    environment:
+      PUID: 1000
+      PGID: 1000
+      UMASK: 002
+      TZ: Etc/UTC
+      QBT_RUN: false
+      QBT_SCHEDULE: 1440
+      QBT_CONFIG: config.yml
+      QBT_LOGFILE: activity.log
+      QBT_CROSS_SEED: false
+      QBT_RECHECK: false
+      QBT_CAT_UPDATE: false
+      QBT_TAG_UPDATE: false
+      QBT_REM_UNREGISTERED: false
+      QBT_REM_ORPHANED: false
+      QBT_TAG_TRACKER_ERROR: false
+      QBT_TAG_NOHARDLINKS: false
+      QBT_SHARE_LIMITS: false
+      QBT_SKIP_CLEANUP: false
+      QBT_DRY_RUN: false
+      QBT_LOG_LEVEL: INFO
+      QBT_DIVIDER: =
+      QBT_WIDTH: 100
+    volumes:
+      - /media/disk/exthdd01/extarrs/data/torrents:/data/torrents
+      - ./appdata/qbitmanage/config:/config
+      - ./appdata/qbittorrent/data/BT_backup:/torrentdir
+    networks:
+      media:
+        ipv4_address: 10.0.30.111
+
+
+###--- SABnzbd Image - Download client - Used to download NZB from Usenet groups ---###
+### This container has been disabled since you need a premium Usenet provider subscription to download files. ###
+### Enable this container if you found a free provider or want to pay for usenet ###
+#  sabnzbd:
+#    image: ghcr.io/hotio/sabnzbd:latest
+#    container_name: sabnzbd
+#    restart: unless-stopped
+#    environment:
+#      PUID: 1000
+#      PGID: 1000
+#      TZ: Etc/UTC
+#    volumes:
+#      - /etc/localtime:/etc/localtime:ro
+#      - ./appdata/sabnzbd/config:/config
+#      - /media/disk/exthdd01/extarrs/data/usenet:/data/usenet:rw
+#    ports:
+#      - 8292:8080
+#      - 8293:9090
+#    logging:
+#      driver: json-file
+#    networks:
+#      media:
+#        ipv4_address: 10.0.30.103
+
+
+###--- Prowlarr Image - Index and Search Management for "ARR" apps ---###
+  prowlarr:
+    image: ghcr.io/hotio/prowlarr:latest
+    container_name: prowlarr
+    restart: unless-stopped
+    environment:
+      PUID: 1000
+      PGID: 1000
+      TZ: Etc/UTC
+    volumes:
+      - ./appdata/prowlarr/config:/config
+    ports:
+      - "8113:9696"
+    logging:
+      driver: json-file
+    networks:
+      media:
+        ipv4_address: 10.0.30.104
+
+
+###--- Radarr Image - Library Manager for Movie content management ---###
+### Do not use this container to download 4K Movie content. Enable container below to have seperate instance just for 4K Movie content ###
+  radarr:
+    image: ghcr.io/hotio/radarr:latest
+    container_name: radarr
+    restart: unless-stopped
+    environment:
+      PUID: 1000
+      PGID: 1000
+      TZ: Etc/UTC
+    volumes:
+      - ./appdata/radarr/config:/config
+      - /media/disk/exthdd01/extarrs/data:/data
+    ports:
+      - 8114:7878
+    logging:
+      driver: json-file
+    networks:
+      media:
+        ipv4_address: 10.0.30.105
+
+###--- Radarr 4K Image - Library Manager for Movie 4K content management ---###
+### Enable this container to get seperate instance for 4K Movie content ###
+#  radarr4k:
+#    image: ghcr.io/hotio/radarr:latest
+#    container_name: radarr4k
+#    restart: unless-stopped
+#    environment:
+#      PUID: 1000
+#      PGID: 1000
+#      TZ: Etc/UTC
+#    volumes:
+#      - ./appdata/radarr4k/config:/config
+#      - /media/disk/exthdd01/extarrs/data:/data
+#    ports:
+#      - 8344:7878
+#    logging:
+#      driver: json-file
+#    networks:
+#      media:
+#        ipv4_address: 10.0.30.115
+
+
+###--- Sonarr Image - Library Manager for TV Show / Series / Anime content management ---###
+### Do not use this container to download 4K TV content. Enable container below to have seperate instance just for 4K TV content ###
+  sonarr:
+    image: ghcr.io/hotio/sonarr:latest
+    container_name: sonarr
+    restart: unless-stopped
+    environment:
+      PUID: 1000
+      PGID: 1000
+      TZ: Etc/UTC
+    volumes:
+      - ./appdata/sonarr/config:/config
+      - /media/disk/exthdd01/extarrs/data:/data
+    ports:
+      - 8115:8989
+    logging:
+      driver: json-file
+    networks:
+      media:
+        ipv4_address: 10.0.30.106
+
+###--- Sonarr 4K Image - Library Manager for 4K TV Show / Series / Anime content management ---###
+### Enable this container to get seperate instance for 4K TV content ###
+#  sonarr4k:
+#    image: ghcr.io/hotio/sonarr:latest
+#    container_name: sonarr
+#    restart: unless-stopped
+#    environment:
+#      PUID: 1000
+#      PGID: 1000
+#      TZ: Etc/UTC
+#    volumes:
+#      - ./appdata/sonarr4k/config:/config
+#      - /media/disk/exthdd01/extarrs/data:/data
+#    ports:
+#      - 8345:8989
+#    logging:
+#      driver: json-file
+#    networks:
+#      media:
+#        ipv4_address: 10.0.30.116
+
+
+###--- Bazarr Image - Library Manager for Subtitle management ---###
+  bazarr:
+    image: ghcr.io/hotio/bazarr:latest
+    container_name: bazarr
+    restart: unless-stopped
+    environment:
+      PUID: 1000
+      PGID: 1000
+      TZ: Etc/UTC
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./appdata/bazarr/config:/config
+      - /media/disk/exthdd01/extarrs/data:/data
+    ports:
+      - 8116:6767
+    logging:
+      driver: json-file
+    networks:
+      media:
+        ipv4_address: 10.0.30.107
+
+
+###--- Lidarr Image - Library Manager for Music content management ---###
+  lidarr:
+    image: ghcr.io/hotio/lidarr:latest
+    container_name: lidarr
+    restart: unless-stopped
+    environment:
+      PUID: 1000
+      PGID: 1000
+      TZ: Etc/UTC
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./appdata/lidarr/config:/config
+      - /media/disk/exthdd01/extarrs/data:/data
+    ports:
+      - 8117:8686
+    logging:
+      driver: json-file
+    networks:
+      media:
+        ipv4_address: 10.0.30.108
+
+
+###--- Readarr Image - Library Manager for Books / Epubs content management ---###
+  readarr:
+    image: ghcr.io/hotio/readarr:latest
+    container_name: readarr
+    restart: unless-stopped
+    environment:
+      PUID: 1000
+      PGID: 1000
+      TZ: Etc/UTC
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./appdata/readarr/config:/config
+      - /media/disk/exthdd01/extarrs/data:/data
+    ports:
+      - 8118:8787
+    logging:
+      driver: json-file
+    networks:
+      media:
+        ipv4_address: 10.0.30.109
+
+
+###--- Unpackerr Image - Extracts downloads for Radarr, Sonarr, Lidarr, and Readarr - Deletes extracted files after import. ---###
+  unpackerr:
+    image: ghcr.io/hotio/unpackerr:latest
+    container_name: unpackerr
+    restart: unless-stopped
+    volumes:
+      - ./appdata/unpackerr/config:/config
+      - /media/disk/exthdd01/extarrs/data/torrents:/data/torrents
+    environment:
+      PUID: 1000
+      PGID: 1000
+      TZ: Etc/UTC
+      UN_LOG_FILE: /data/torrents/unpackerr.log
+      UN_SONARR_0_URL: http://sonarr:8989/sonarr
+      UN_SONARR_0_API_KEY: IMPORT_SONARR_API_KEY_HERE
+#      UN_SONARR_1_URL: http://sonarr4k:8989/sonarr
+#      UN_SONARR_1_API_KEY: IMPORT_SONARR4k_API_KEY_HERE
+      UN_RADARR_0_URL: http://radarr:7878/radarr
+      UN_RADARR_0_API_KEY: IMPORT_RADARR_API_KEY_HERE
+#      UN_RADARR_1_URL: http://radarr4k:7878/radarr
+#      UN_RADARR_1_API_KEY: IMPORT_RADARR4k_API_KEY_HERE
+      UN_LIDARR_0_URL: http://lidarr:8686/lidarr
+      UN_LIDARR_0_API_KEY: IMPORT_LIDARR_API_KEY_HERE
+      UN_READARR_0_URL: http://readarr:8787/readarr
+      UN_READARR_0_API_KEY: IMPORT_READARR_API_KEY_HERE
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      media:
+        ipv4_address: 10.0.30.110
+
+networks:
+  media:
+    driver: bridge
+    attachable: true
+    internal: false
+    ipam:
+      config:
+        - subnet: 10.0.30.0/24 # CHANGE THE SUBNET TO YOUR OWN PREFERRED RANGE!!!
+          gateway: 10.0.30.1 # GATEWAY GOES WITH THE SUBNET!!!
