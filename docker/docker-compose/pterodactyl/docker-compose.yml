@@ -1,0 +1,93 @@
+version: "3.8"
+
+services:
+  db:
+    image: mariadb:latest
+    container_name: pterodactyl_mariadb
+    restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - ./panel/db:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: panel
+      MYSQL_USER: pterodactyl
+      MYSQL_PASSWORD: pterodactyl!
+      MYSQL_ROOT_PASSWORD: pterodactyl!!
+    networks:
+      - gamelan
+
+  cache:
+    image: redis:alpine
+    container_name: pterodactyl_redis
+    restart: unless-stopped
+    networks:
+      - gamelan
+      
+  panel:
+    image: ghcr.io/pterodactyl/panel:latest
+    container_name: pterodactyl_panel
+    restart: unless-stopped
+    ports:
+      - 8180:80
+#      - 8184:443 # OPTIONAL
+    volumes:
+      - ./panel/var/:/app/var/
+      - ./panel/nginx/:/etc/nginx/http.d/
+      - ./panel/certs/:/etc/letsencrypt/
+      - ./panel/logs/:/app/storage/logs
+    environment:
+      APP_URL: "https://gpanel.DOMAIN.COM"
+      APP_SERVICE_AUTHOR: noreply@DOMAIN.COM
+      APP_ENVIRONMENT_ONLY: false
+      APP_ENV: production
+      APP_TIMEZONE: UTC # A list of valid timezones can be found here: http://php.net/manual/en/timezones.php
+      CACHE_DRIVER: redis
+      SESSION_DRIVER: redis
+      QUEUE_DRIVER: redis
+      REDIS_HOST: cache
+      TRUSTED_PROXIES: "*" # Set this to your proxy IP
+      DB_HOST: db
+      DB_PASSWORD: pterodactyl!
+      DB_PORT: 3306
+      # Email
+      MAIL_FROM: noreply@DOMAIN.COM
+      MAIL_DRIVER: smtp
+      MAIL_HOST: mail.DOMAIN.COM
+      MAIL_PORT: 587
+      MAIL_USERNAME: noreply@DOMAIN.COM
+      MAIL_PASSWORD: REPLACE_WITH_YOUR_EMAIL_PASSWORD
+      MAIL_ENCRYPTION: true
+#      LE_EMAIL: "" # Uncomment if you want to use Let's Encrypt to generate an SSL certificate for the Panel.
+    networks:
+      - gamelan
+
+  wings:
+    image: ghcr.io/pterodactyl/wings:latest
+    container_name: pterodactyl_wings
+    restart: unless-stopped
+    ports:
+      - 8181:8080
+      - 8182:2022 # SFTP
+#      - 8183:443 # OPTIONAL
+    tty: true
+    environment:
+      TZ: Etc/UTC
+      WINGS_UID: 988
+      WINGS_GID: 988
+      WINGS_USERNAME: admin
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/containers:/var/lib/docker/containers
+      - ./wings/etc/pterodactyl:/etc/pterodactyl
+      - ./wings/var/lib/pterodactyl:/var/lib/pterodactyl
+      - ./wings/var/log/pterodactyl:/var/log/pterodactyl
+      - ./wings/tmp/pterodactyl:/tmp/pterodactyl
+      - ./wings/etc/ssl/certs:/etc/ssl/certs:ro
+#      - /srv/daemon-data/:/srv/daemon-data/ # you may need /srv/daemon-data if you are upgrading from an old daemon
+#      - /etc/letsencrypt/:/etc/letsencrypt/ # Required for ssl if you use let's encrypt. uncomment to use.version: "3.8"
+    networks:
+      - gamelan
+      
+networks:
+  gamelan:
+    external: true
