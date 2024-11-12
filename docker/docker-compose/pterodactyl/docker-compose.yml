@@ -22,41 +22,52 @@ services:
     restart: unless-stopped
     networks:
       - gamelan
-      
+
   panel:
     image: ghcr.io/pterodactyl/panel:latest
     container_name: pterodactyl_panel
     restart: unless-stopped
+    stdin_open: true
+    tty: true
     ports:
       - 8180:80
 #      - 8184:443 # OPTIONAL
     volumes:
-      - ./panel/var/:/app/var/
-      - ./panel/nginx/:/etc/nginx/http.d/
-      - ./panel/certs/:/etc/letsencrypt/
-      - ./panel/logs/:/app/storage/logs
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/containers:/var/lib/docker/containers
+      - /etc/ssl/certs:/etc/ssl/certs:ro
+      - ./panel/conf/certs:/etc/letsencrypt #
+      - ./panel/conf/etc:/etc/pterodactyl
+      - ./panel/conf/nginx:/etc/nginx/http.d #
+      - ./panel/data/var:/app/var #
+      - ./panel/data/logs/panel:/app/storage/logs #
+      - ./panel/data/logs/panel:/var/log/panel/logs
+      - ./panel/data/panel:/var/www/html
+      - ./panel/data/lib:/var/lib/pterodactyl
     environment:
-      APP_URL: "https://gpanel.DOMAIN.COM"
-      APP_SERVICE_AUTHOR: noreply@DOMAIN.COM
-      APP_ENVIRONMENT_ONLY: false
+      RECAPTCHA_ENABLED: false
+      TZ: Etc/UTC
+      APP_TIMEZONE: Etc/UTC
       APP_ENV: production
-      APP_TIMEZONE: UTC # A list of valid timezones can be found here: http://php.net/manual/en/timezones.php
-      CACHE_DRIVER: redis
-      SESSION_DRIVER: redis
-      QUEUE_DRIVER: redis
-      REDIS_HOST: cache
-      TRUSTED_PROXIES: "*" # Set this to your proxy IP
-      DB_HOST: db
-      DB_PASSWORD: pterodactyl!
-      DB_PORT: 3306
-      # Email
+      APP_ENVIRONMENT_ONLY: false
+      APP_URL: https://gpanel.DOMAIN.COM
+      APP_SERVICE_AUTHOR: noreply@DOMAIN.COM
       MAIL_FROM: noreply@DOMAIN.COM
       MAIL_DRIVER: smtp
       MAIL_HOST: mail.DOMAIN.COM
       MAIL_PORT: 587
       MAIL_USERNAME: noreply@DOMAIN.COM
       MAIL_PASSWORD: REPLACE_WITH_YOUR_EMAIL_PASSWORD
-      MAIL_ENCRYPTION: true
+      MAIL_ENCRYPTION: false
+      TRUSTED_PROXIES: "*"
+      PTERODACTYL_TELEMETRY_ENABLED: false
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_PASSWORD: pterodactyl!
+      CACHE_DRIVER: redis
+      SESSION_DRIVER: redis
+      QUEUE_DRIVER: redis
+      REDIS_HOST: cache
 #      LE_EMAIL: "" # Uncomment if you want to use Let's Encrypt to generate an SSL certificate for the Panel.
     networks:
       - gamelan
@@ -69,25 +80,26 @@ services:
       - 8181:8080
       - 8182:2022 # SFTP
 #      - 8183:443 # OPTIONAL
+    stdin_open: true
     tty: true
     environment:
       TZ: Etc/UTC
-      WINGS_UID: 988
-      WINGS_GID: 988
-      WINGS_USERNAME: admin
+      APP_TIMEZONE: Etc/UTC
+      WINGS_UID: 1000
+      WINGS_GID: 1000
+      WINGS_USERNAME: pterodactyl
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /var/lib/docker/containers:/var/lib/docker/containers
-      - ./wings/etc/pterodactyl:/etc/pterodactyl
-      - ./wings/var/lib/pterodactyl:/var/lib/pterodactyl
-      - ./wings/var/log/pterodactyl:/var/log/pterodactyl
-      - ./wings/tmp/pterodactyl:/tmp/pterodactyl
-      - ./wings/etc/ssl/certs:/etc/ssl/certs:ro
-#      - /srv/daemon-data/:/srv/daemon-data/ # you may need /srv/daemon-data if you are upgrading from an old daemon
-#      - /etc/letsencrypt/:/etc/letsencrypt/ # Required for ssl if you use let's encrypt. uncomment to use.version: "3.8"
+      - /var/run/docker.sock:/var/run/docker.sock #
+      - /var/lib/docker/containers:/var/lib/docker/containers # - ./panel/data/containers:/var/lib/docker/containers
+      - /etc/ssl/certs:/etc/ssl/certs:ro #
+      - ./wings/conf/etc:/etc/pterodactyl #
+      - ./wings/data/lib:/var/lib/pterodactyl #
+      - ./wings/data/logs/wings:/var/log/pterodactyl #
+      - ./wings/data/tmp/pterodactyl:/tmp/pterodactyl #
+#      - ./wings/data/lib/wings.db:/var/lib/pterodactyl/wings.db
     networks:
       - gamelan
-      
+
 networks:
   gamelan:
     external: true
