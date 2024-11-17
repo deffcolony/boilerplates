@@ -22,7 +22,7 @@ services:
     restart: unless-stopped
     networks:
       - gamelan
-
+      
   panel:
     image: ghcr.io/pterodactyl/panel:latest
     container_name: pterodactyl_panel
@@ -93,13 +93,13 @@ services:
       - /var/lib/docker/containers:/var/lib/docker/containers # - ./panel/data/containers:/var/lib/docker/containers
       - /etc/ssl/certs:/etc/ssl/certs:ro #
       - ./wings/conf/etc:/etc/pterodactyl #
-      - ./wings/data/lib:/var/lib/pterodactyl #
+      - /wings/data/lib:/wings/data/lib #
       - ./wings/data/logs/wings:/var/log/pterodactyl #
-      - ./wings/data/tmp/pterodactyl:/tmp/pterodactyl #
-#      - ./wings/data/lib/wings.db:/var/lib/pterodactyl/wings.db
+      - /wings/data/tmp/pterodactyl:/wings/data/tmp/pterodactyl #
+#      - ./wings/data/lib/wings.db:/wings/data/lib/wings.db
     networks:
       - gamelan
-
+      
 networks:
   gamelan:
     external: true

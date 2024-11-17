@@ -14,12 +14,12 @@ api:
   upload_limit: 100
   trusted_proxies: []
 system:
-  root_directory: /var/lib/pterodactyl
+  root_directory: /wings/data/lib
   log_directory: /var/log/pterodactyl
-  data: /var/lib/pterodactyl/volumes
-  archive_directory: /var/lib/pterodactyl/archives
-  backup_directory: /var/lib/pterodactyl/backups
-  tmp_directory: /tmp/pterodactyl
+  data: /wings/data/lib/volumes
+  archive_directory: /wings/data/lib/archives
+  backup_directory: /wings/data/lib/backups
+  tmp_directory: /wings/data/tmp/pterodactyl
   username: pterodactyl
   timezone: Etc/UTC
   user:
