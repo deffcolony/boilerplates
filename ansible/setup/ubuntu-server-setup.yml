@@ -1,49 +1,175 @@
-# playbook.yml
-
-- hosts: ubuntu_server
+---
+- name: Configure Ubuntu Server with Docker and Docker Compose
+  hosts: all
   become: true
 
-  tasks:
-    - name: Install required packages
-      apt:
-        name: "{{ item }}"
-        state: present
-      loop:
-        - ssh
-        - neofetch
-        - net-tools
-        - netdiscover
-        - ncdu
-        - duf
+  vars:
+    timezone: "Europe/Amsterdam"
+    network_card_name: "enp87s0"
+    static_ip: "192.168.1.55/24"
+    gateway_ip: "192.168.1.2"
+    dns_servers:
+      - "1.1.1.1"
+      - "1.0.0.1"
+    wake_on_lan: true
 
-    - name: Modify SSH settings
+  tasks:
+    # Set up SSH
+    - name: Enable root login in SSH config
       lineinfile:
         path: /etc/ssh/sshd_config
-        regexp: "^#?PermitRootLogin"
-        line: "PermitRootLogin yes"
+        regexp: '^#?PermitRootLogin .*'
+        line: 'PermitRootLogin yes'
+        state: present
+      notify:
+        - Restart SSH
 
+    # Update and Upgrade Ubuntu
+    - name: Update package lists
+      apt:
+        update_cache: yes
+
+    - name: Perform full upgrade
+      apt:
+        upgrade: dist
+
+    - name: Install update-manager-core
+      apt:
+        name: update-manager-core
+        state: present
+
+    - name: Perform release upgrade
+      command: do-release-upgrade -d
+      register: release_upgrade
+      ignore_errors: yes
+
+    # Install useful packages
+    - name: Install useful tools
+      apt:
+        name:
+          - net-tools
+          - netdiscover
+          - ncdu
+          - duf
+          - ethtool
+          - vifm
+        state: present
+
+    - name: Install fastfetch
+      apt_repository:
+        repo: ppa:zhangsongcui3371/fastfetch
+      register: add_repo
+      ignore_errors: yes
+    - name: Install fastfetch after adding PPA
+      apt:
+        name: fastfetch
+        state: present
+      when: add_repo is success
+
+    # Set timezone
     - name: Set timezone
       timezone:
-        name: Europe/Amsterdam
+        name: "{{ timezone }}"
 
-    - name: Install Docker dependencies
+    # Disable Cloud-Init for Static IP
+    - name: Disable cloud-init network management
+      copy:
+        content: |
+          network: {config: disabled}
+        dest: /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
+
+    - name: Remove Cloud-Init netplan config
+      file:
+        path: /etc/netplan/50-cloud-init.yaml
+        state: absent
+
+    # Configure Static IP
+    - name: Configure static IP using netplan
+      copy:
+        dest: /etc/netplan/00-installer-config.yaml
+        content: |
+          network:
+            version: 2
+            renderer: networkd
+            ethernets:
+              {{ network_card_name }}:
+                dhcp4: no
+                dhcp6: no
+                addresses:
+                  - "{{ static_ip }}"
+                nameservers:
+                  addresses: {{ dns_servers }}
+                routes:
+                  - to: default
+                    via: "{{ gateway_ip }}"
+                wakeonlan: {{ wake_on_lan }}
+
+    - name: Apply netplan configuration
+      command: netplan apply
+
+    # Enable Wake-on-LAN
+    - name: Enable Wake-on-LAN
+      command: ethtool -s {{ network_card_name }} wol g
+      when: wake_on_lan
+
+    - name: Configure Wake-on-LAN to persist after reboot
+      copy:
+        dest: /etc/systemd/system/wol.service
+        content: |
+          [Unit]
+          Description=Enable Wake On Lan
+          [Service]
+          Type=oneshot
+          ExecStart=/sbin/ethtool --change {{ network_card_name }} wol g
+          [Install]
+          WantedBy=basic.target
+    - name: Enable and start Wake-on-LAN service
+      systemd:
+        name: wol.service
+        enabled: true
+        state: started
+
+    # Fix LVM
+    - name: Extend LVM volume to use all available space
+      shell: |
+        lvextend -l +100%FREE /dev/ubuntu-vg/ubuntu-lv
+        resize2fs /dev/ubuntu-vg/ubuntu-lv
+      args:
+        warn: false
+
+    # Install Docker
+    - name: Install prerequisites for Docker
       apt:
-        name: "{{ item }}"
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
         state: present
-      with_items:
-        - apt-transport-https
-        - ca-certificates
-        - curl
-        - gnupg
-        - lsb-release
 
-    - name: Install Docker
-      shell: curl -sSL https://get.docker.com/ | CHANNEL=stable bash
+    - name: Install Docker using official script
+      shell: |
+        curl -sSL https://get.docker.com/ | CHANNEL=stable bash
+
+    # Install Docker Compose
+    - name: Install jq
+      apt:
+        name: jq
+        state: present
 
     - name: Install Docker Compose
-      shell: >
-        DOCKER_COMPOSE_VERSION=$(curl --silent https://api.github.com/repos/docker/compose/releases/latest | jq .name -r);
-        DOCKER_CLI_PLUGIN_PATH=/usr/local/lib/docker/cli-plugins;
-        sudo mkdir -p $DOCKER_CLI_PLUGIN_PATH;
-        sudo curl -L "https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-$(uname -s)-$(uname -m)" -o $DOCKER_CLI_PLUGIN_PATH/docker-compose;
-        sudo chmod +x $DOCKER_CLI_PLUGIN_PATH/docker-compose
+      shell: |
+        DOCKER_COMPOSE_VERSION=$(curl --silent https://api.github.com/repos/docker/compose/releases/latest | jq .name -r)
+        DOCKER_CLI_PLUGIN_PATH=/usr/local/lib/docker/cli-plugins
+        mkdir -p $DOCKER_CLI_PLUGIN_PATH
+        curl -L "https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-$(uname -s)-$(uname -m)" -o $DOCKER_CLI_PLUGIN_PATH/docker-compose
+        chmod +x $DOCKER_CLI_PLUGIN_PATH/docker-compose
+      args:
+        warn: false
+
+  handlers:
+    - name: Restart SSH
+      service:
+        name: sshd
+        state: restarted
