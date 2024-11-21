@@ -22,6 +22,7 @@ STATIC_IP="192.168.1.55/24"
 GATEWAY="192.168.1.2"
 DNS_SERVERS="1.1.1.1,1.0.0.1"
 TIMEZONE="Europe/Amsterdam"
+PRIMARY_INTERFACE=""
 
 # Function to log messages with timestamps and colors
 log_message() {
@@ -41,7 +42,6 @@ log_message() {
             ;;
     esac
 }
-
 
 # Function to detect the primary network interface
 detect_network_interface() {
@@ -115,7 +115,7 @@ EOF
 # Install useful packages
 install_packages() {
     log_message "INFO" "Installing useful packages..."
-    apt install -y net-tools jq curl ethtool
+    apt install -y net-tools jq curl ethtool netdiscover ncdu duf vifm btop
     log_message "INFO" "Useful packages installed successfully."
 }
 
@@ -140,6 +140,35 @@ install_docker_compose() {
     log_message "INFO" "Docker Compose installed successfully."
 }
 
+# LVM Fix
+fix_lvm() {
+    log_message "INFO" "Expanding LVM partition..."
+    sudo lvm lvextend -l +100%FREE /dev/ubuntu-vg/ubuntu-lv
+    sudo resize2fs /dev/ubuntu-vg/ubuntu-lv
+    log_message "INFO" "LVM partition expanded successfully."
+}
+
+# Configure Wake-on-LAN
+configure_wol() {
+    log_message "INFO" "Enabling Wake-on-LAN for $PRIMARY_INTERFACE..."
+    sudo ethtool -s "$PRIMARY_INTERFACE" wol g
+
+    # Create Wake-on-LAN systemd service
+    log_message "INFO" "Creating systemd service for Wake-on-LAN..."
+    sudo bash -c "cat > /etc/systemd/system/wol.service" <<EOF
+[Unit]
+Description=Enable Wake On Lan
+[Service]
+Type=oneshot
+ExecStart=/sbin/ethtool --change $PRIMARY_INTERFACE wol g
+[Install]
+WantedBy=basic.target
+EOF
+    sudo systemctl daemon-reload
+    sudo systemctl enable wol.service
+    log_message "INFO" "Wake-on-LAN configured and service created."
+}
+
 # Main script execution
 main() {
     log_message "INFO" "Starting setup script..."
@@ -154,6 +183,8 @@ main() {
     install_packages
     install_docker
     install_docker_compose
+    fix_lvm
+    configure_wol
 
     log_message "INFO" "Setup complete! Please reboot the server to ensure all changes take effect."
 }
