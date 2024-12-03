@@ -1,31 +1,127 @@
-version: "3.8"
-
 services:
-  app:
-    image: nextcloud
-    container_name: nextcloud
-    environment:
-      MYSQL_PASSWORD: strongpassword!
-      MYSQL_DATABASE: nextcloud
-      MYSQL_USER: nextcloud
-      MYSQL_HOST: db
-    volumes:
-      - ./data:/var/www/html
-    ports:
-      - 8130:80
-    restart: unless-stopped
-    depends_on:
-      - db
-
   db:
-    image: mariadb:latest
-    container_name: nextcloud-mariadb
-    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
-    environment:
-      MYSQL_ROOT_PASSWORD: VeryStrongPassword!
-      MYSQL_PASSWORD: strongpassword!
-      MYSQL_DATABASE: nextcloud
-      MYSQL_USER: nextcloud
-    volumes:
-      - ./db:/var/lib/mysql
+    image: postgres:16
+    container_name: nextcloud_postgres
     restart: unless-stopped
+    user: ${UID}:${GID}
+    volumes:
+      - ./db:/var/lib/postgresql/data
+#      - /etc/passwd:/etc/passwd:ro
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready --dbname='${POSTGRES_DB}' --username='${POSTGRES_USER}' || exit 1"]
+      interval: 5m
+      start_period: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - nextcloud-net
+
+  app:
+    image: nextcloud:latest
+    container_name: nextcloud
+    restart: unless-stopped
+    user: ${UID}:${GID}
+    env_file:
+      - .env
+    volumes:
+      - ./nextcloud:/var/www/html
+      - ./apps:/var/www/html/custom_apps
+      - ./data:/var/www/html/data
+      - ./config:/var/www/html/config
+      - ./redis-session.ini:/usr/local/etc/php/conf.d/redis-session.ini
+      - ./remoteip.conf:/etc/apache2/conf-available/remoteip.conf:ro
+    ports:
+      - 8330:80
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - nextcloud-net
+
+  notify_push:
+    image: nextcloud:latest
+    container_name: nextcloud_push
+    restart: unless-stopped
+    user: ${UID}:${GID}
+    environment:
+      TZ: ${TIMEZONE}
+      PORT: 7867
+      NEXTCLOUD_URL: http://app        # don't go through the proxy to contact the nextcloud server https://nextcloud.domain.com
+    entrypoint: /var/www/html/custom_apps/notify_push/bin/x86_64/notify_push /var/www/html/config/config.php
+    volumes:
+      - ./apps:/var/www/html/custom_apps
+      - ./config:/var/www/html/config
+    ports:
+      - 8331:7867
+    depends_on:
+      - app
+    networks:
+      - nextcloud-net
+
+  cron:
+    image: nextcloud:latest
+    container_name: nextcloud_cron
+    restart: unless-stopped
+    # special UID handling https://github.com/nextcloud/docker/issues/1740
+    environment:
+      TZ: ${TIMEZONE}
+      UID: ${UID}
+    env_file:
+      - .env
+    volumes:
+      - ./nextcloud:/var/www/html
+      - ./apps:/var/www/html/custom_apps
+      - ./data:/var/www/html/data
+      - ./config:/var/www/html/config
+      - ./cron.sh:/cron.sh
+    entrypoint: /cron.sh
+    depends_on:
+      - app
+    networks:
+      - nextcloud-net
+
+  redis:
+    image: redis:bookworm
+    container_name: nextcloud_redis
+    restart: unless-stopped
+    user: ${UID}:${GID}
+    command:
+      - --save ""
+#    volumes:
+#      - ./redis:/data
+    environment:
+      TZ: ${TIMEZONE}
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      start_period: 10s
+      interval: 30s
+      retries: 3
+      timeout: 3s
+    networks:
+      - nextcloud-net
+
+  imaginary:
+    image: nextcloud/aio-imaginary:latest
+    container_name: nextcloud_imaginary
+    restart: unless-stopped
+    user: ${UID}:${GID}
+    expose:
+      - "9000"
+    environment:
+      TZ: ${TIMEZONE}
+    cap_add:
+      - SYS_NICE
+    tmpfs:
+      - /tmp
+    depends_on:
+      - app	  
+    networks:
+      - nextcloud-net
+
+networks:
+  nextcloud-net:
+    external: true
