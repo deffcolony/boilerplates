@@ -35,18 +35,10 @@ log_message() {
     esac
 }
 
-# Ensure the script is run as root
-if [[ $EUID -ne 0 ]]; then
-    log_message "ERROR" "This script must be run as root."
-    exit 1
-fi
-
 # Configurations
 REMOTEIP_CONF="./remoteip.conf"
 CRON_SCRIPT="./cron.sh"
 ENV_FILE="./.env"
-UID=1004
-GID=1004
 SERVICE_ACCOUNT="svc_nextcloud_docker"
 
 # Functions
@@ -69,7 +61,7 @@ configure_cron() {
     cat > $CRON_SCRIPT << EOF
 #!/bin/sh
 set -eu
-adduser --disabled-password --gecos "" --no-create-home --uid "$UID" cron
+adduser --disabled-password --gecos "" --no-create-home --uid 1004 cron
 mv /var/spool/cron/crontabs/www-data /var/spool/cron/crontabs/cron
 exec busybox crond -f -L /dev/stdout
 EOF
@@ -107,15 +99,15 @@ NEXTCLOUD_ADMIN_PASSWORD=admin
 REDIS_HOST=redis
 
 # Permissions for Service account: svc_nextcloud_docker
-UID=$UID
-GID=$GID
+UID=1004
+GID=1004
 EOF
     log_message "INFO" ".env configured."
 }
 
 setup_service_account() {
     log_message "INFO" "Setting up service account..."
-    sudo useradd --no-create-home $SERVICE_ACCOUNT --shell /usr/sbin/nologin --uid $UID
+    sudo useradd --no-create-home $SERVICE_ACCOUNT --shell /usr/sbin/nologin --uid 1004
     log_message "INFO" "Service account $SERVICE_ACCOUNT created."
 }
 
@@ -123,7 +115,8 @@ setup_permissions() {
     log_message "INFO" "Setting up mount points and permissions..."
     mkdir -p apps config data nextcloud db
     touch redis-session.ini
-    sudo chown -R www-data:www-data apps config data nextcloud db redis-session.ini $CRON_SCRIPT
+    sudo chown -R 1004:1004 apps config data nextcloud db redis-session.ini $CRON_SCRIPT
+    sudo chmod +x cron.sh
     log_message "INFO" "Permissions set."
 }
 
@@ -192,6 +185,12 @@ install_apps() {
     done
     log_message "INFO" "Apps installed."
 }
+
+# Ensure the script is run as root
+if [[ $EUID -ne 0 ]]; then
+    log_message "ERROR" "This script must be run as root."
+    exit 1
+fi
 
 # Main Execution
 log_message "INFO" "Starting Nextcloud setup..."

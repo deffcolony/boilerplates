@@ -1,32 +1,35 @@
 #!/bin/bash
 
-# Config variables
-SERVICE_ACCOUNT="svc_nextcloud_docker"
-
 # ANSI Escape Code for Colors
 reset="\033[0m"
+white_fg_strong="\033[90m"
 red_fg_strong="\033[91m"
 green_fg_strong="\033[92m"
-yellow_bg="\033[43m"
+yellow_fg_strong="\033[93m"
+blue_fg_strong="\033[94m"
+magenta_fg_strong="\033[95m"
+cyan_fg_strong="\033[96m"
+
+# Normal Background Colors
 red_bg="\033[41m"
-
-
+blue_bg="\033[44m"
+yellow_bg="\033[43m"
 
 # Function to log messages with timestamps and colors
 log_message() {
     current_time=$(date +'%H:%M:%S') # Current time
     case "$1" in
         "INFO")
-            echo -e "${green_fg_strong}[$current_time] INFO: $2${reset}"
+            echo -e "${blue_bg}[$current_time]${reset} ${blue_fg_strong}[INFO]${reset} $2"
             ;;
         "WARN")
-            echo -e "${yellow_bg}[$current_time] WARN: $2${reset}"
+            echo -e "${yellow_bg}[$current_time]${reset} ${yellow_fg_strong}[WARN]${reset} $2"
             ;;
         "ERROR")
-            echo -e "${red_fg_strong}[$current_time] ERROR: $2${reset}"
+            echo -e "${red_bg}[$current_time]${reset} ${red_fg_strong}[ERROR]${reset} $2"
             ;;
         *)
-            echo -e "${green_fg_strong}[$current_time] DEBUG: $2${reset}"
+            echo -e "${blue_bg}[$current_time]${reset} ${blue_fg_strong}[DEBUG]${reset} $2"
             ;;
     esac
 }
