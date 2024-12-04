@@ -3,6 +3,7 @@ set -euo pipefail
 
 # Config variables
 DOMAIN="nextcloud.domain.com"
+COLLABORA_DOMAIN="collabora.domain.com"
 OVERWRITEHOST=${DOMAIN}
 SERVICE_ACCOUNT="svc_nextcloud_docker"
 
@@ -79,6 +80,7 @@ install_nextcloud() {
     setup_imaginary
     limit_parallel_jobs
     install_apps
+    setup_richdocuments
 
     # Completion message
     log_message "INFO" "Nextcloud installed and configured successfully."
@@ -256,23 +258,20 @@ setup_notify_push() {
     log_message "INFO" "Setting up notify_push..."
     docker compose exec app php occ app:install notify_push
     docker compose up -d notify_push
-    docker compose exec app sh -c "php occ notify_push:setup https://${OVERWRITEHOST}/push"
-    log_message "INFO" "notify_push configured."
+    docker compose exec app sh -c "php occ notify_push:setup https://${OVERWRITEHOST}/push" #TODO
 }
 
 check_notify_push_stats() {
     log_message "INFO" "Checking notify_push stats..."
     docker compose exec app php occ notify_push:metrics
     docker compose exec app php occ notify_push:self-test
-    log_message "INFO" "notify_push stats checked."
 }
 
 configure_system_settings() {
     log_message "INFO" "Configuring system settings..."
-    docker compose exec app php occ background:Cron
+    docker compose exec app php occ background:Cron #TODO
     docker compose exec app php occ config:system:set maintenance_window_start --type=integer --value=1
-    docker compose exec app php occ config:system:set default_phone_region --value='CH'
-    log_message "INFO" "System settings configured."
+    docker compose exec app php occ config:system:set default_phone_region --value='US' # Valid regions here https://en.wikipedia.org/wiki/ISO_3166-1
 }
 
 setup_imaginary() {
@@ -311,6 +310,14 @@ install_apps() {
         docker compose exec app php occ app:install "$app"
     done
     log_message "INFO" "Apps installed."
+}
+
+setup_richdocuments() {
+    log_message "INFO" "Setting up RichDocuments..."
+    docker compose exec app php occ app:install richdocuments
+    docker compose exec app php occ config:app:set richdocuments wopi_allowlist --value "172.16.0.0/12,fd00:feed:beef::/48"
+    docker compose exec app php occ config:app:set richdocuments wopi_url --value https://${COLLABORA_DOMAIN}
+    docker compose exec app php occ richdocuments:activate-config
 }
 
 
