@@ -97,7 +97,8 @@ install_nextcloud() {
 configure_nextcloud() {
 
     # Return to home menu
-    read -p "Nothing here yet... Press Enter to return to the home menu..."
+    echo -e "There is nothing here yet..."
+    read -p "Press Enter to return home..."
     home
 
 }
@@ -204,6 +205,10 @@ overwrite.cli.url=https://${DOMAIN}
 OVERWRITEPROTOCOL=https
 TRUSTED_PROXIES=172.16.0.0/12 192.168.0.0/16 10.0.0.0/8 fc00::/7 fe80::/10 2001:db8::/32
 
+# Collabora
+COLLABORA_FQDN=${COLLABORA_DOMAIN}
+COLLABORA_DOMAINS=${DOMAIN}
+
 # PHP Configuration
 PHP_MEMORY_LIMIT=1G
 PHP_UPLOAD_LIMIT=10G
@@ -277,7 +282,7 @@ configure_system_settings() {
 
 setup_imaginary() {
     log_message "INFO" "Setting up Imaginary..."
-    docker compose exec app php occ config:system:get enabledPreviewProviders
+#    docker compose exec app php occ config:system:get enabledPreviewProviders
     docker compose exec app php occ config:system:set enabledPreviewProviders 0 --value 'OC\\Preview\\MP3'
     docker compose exec app php occ config:system:set enabledPreviewProviders 1 --value 'OC\\Preview\\TXT'
     docker compose exec app php occ config:system:set enabledPreviewProviders 2 --value 'OC\\Preview\\MarkDown'
@@ -300,7 +305,7 @@ install_apps() {
         "groupfolders"
         "twofactor_webauthn"
         "polls"
-        "memories"
+#        "memories" # optional
         "cfg_share_links"
         "theming_customcss"
     )
@@ -315,11 +320,11 @@ install_apps() {
 setup_richdocuments() {
     log_message "INFO" "Setting up RichDocuments..."
     docker compose exec app php occ app:install richdocuments
-    docker compose exec app php occ config:app:set richdocuments wopi_allowlist --value "172.16.0.0/12,fd00:feed:beef::/48"
+    # uncomment below to use wopi_allowlist if emty then allow all hosts
+#    docker compose exec app php occ config:app:set richdocuments wopi_allowlist --value "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,173.245.48.0/20,103.21.244.0/22,103.22.200.0/22,103.31.4.0/22,141.101.64.0/18,108.162.192.0/18,190.93.240.0/20,188.114.96.0/20,197.234.240.0/22,198.41.128.0/17,162.158.0.0/15,104.16.0.0/13,104.24.0.0/14,172.64.0.0/13,131.0.72.0/22,2400:cb00::/32,2606:4700::/32,2803:f800::/32,2405:b500::/32,2405:8100::/32,2a06:98c0::/29,2c0f:f248::/32"
     docker compose exec app php occ config:app:set richdocuments wopi_url --value https://${COLLABORA_DOMAIN}
     docker compose exec app php occ richdocuments:activate-config
 }
-
 
 # Menu function
 home() {
