@@ -74,8 +74,8 @@ install_nextcloud() {
     setup_containers || log_message "WARN" "nextcloud_push failed to start. This is normal. Continuing with configuration."
     # nextcloud_push container will fail to start which is normal. Do not stop the script.
 
-    setup_notify_push
-    check_notify_push_stats
+    setup_notify_push || log_message "WARN" "failed to setup Client Push."
+    check_notify_push_stats || log_message "INFO" "Continuing..."
     configure_system_settings
     setup_imaginary
     limit_parallel_jobs
@@ -245,7 +245,6 @@ setup_permissions() {
 setup_containers() {
     log_message "INFO" "Setting up Nextcloud Docker containers..."
     docker compose up -d
-    log_message "INFO" "Containers are up and running."
 }
 
 
@@ -269,7 +268,9 @@ check_notify_push_stats() {
 
 configure_system_settings() {
     log_message "INFO" "Configuring system settings..."
-    docker compose exec app php occ background:Cron #TODO
+    docker compose exec app php occ background:cron
+    docker compose exec app php occ db:add-missing-indices
+    docker compose exec app php occ maintenance:repair --include-expensive
     docker compose exec app php occ config:system:set maintenance_window_start --type=integer --value=1
     docker compose exec app php occ config:system:set default_phone_region --value='US' # Valid regions here https://en.wikipedia.org/wiki/ISO_3166-1
 }
@@ -284,14 +285,12 @@ setup_imaginary() {
     docker compose exec app php occ config:system:set enabledPreviewProviders 4 --value 'OC\\Preview\\Krita'
     docker compose exec app php occ config:system:set enabledPreviewProviders 5 --value 'OC\\Preview\\Imaginary'
     docker compose exec app php occ config:system:set preview_imaginary_url --value 'http://imaginary:9000'
-    log_message "INFO" "Imaginary configured."
 }
 
 limit_parallel_jobs() {
     log_message "INFO" "Limiting parallel jobs..."
     docker compose exec app php occ config:system:set preview_concurrency_all --value 12
     docker compose exec app php occ config:system:set preview_concurrency_new --value 8
-    log_message "INFO" "Parallel jobs limited."
 }
 
 install_apps() {
@@ -311,6 +310,7 @@ install_apps() {
     done
     log_message "INFO" "Apps installed."
 }
+
 
 setup_richdocuments() {
     log_message "INFO" "Setting up RichDocuments..."
