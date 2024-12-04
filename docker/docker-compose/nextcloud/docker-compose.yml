@@ -50,7 +50,7 @@ services:
     environment:
       TZ: ${TIMEZONE}
       PORT: 7867
-      NEXTCLOUD_URL: http://app        # don't go through the proxy to contact the nextcloud server https://nextcloud.domain.com
+      NEXTCLOUD_URL: http://app      # don't go through the proxy to contact the nextcloud server https://nextcloud.domain.com
     entrypoint: /var/www/html/custom_apps/notify_push/bin/x86_64/notify_push /var/www/html/config/config.php
     volumes:
       - ./apps:/var/www/html/custom_apps
@@ -121,6 +121,31 @@ services:
       - app	  
     networks:
       - nextcloud-net
+
+  nextcloud-collabora:
+    image: collabora/code
+    container_name: nextcloud_collabora
+    restart: unless-stopped
+    ports:
+      - 8332:9980
+#    expose:
+#      - "9980"  
+    environment:
+      #should work as "domain=cloud1\.nextcloud\.com|cloud2\.nextcloud\.com"
+      - domain=${COLLABORA_DOMAINS}
+      - 'dictionaries=en_US,nl_NL'
+      - VIRTUAL_PROTO=http
+      - VIRTUAL_PORT=9980
+      - VIRTUAL_HOST=${COLLABORA_FQDN}
+      - "extra_params=--o:ssl.enable=false  --o:ssl.termination=true"
+    env_file:
+      - .env
+    cap_add:
+      - MKNOD
+    tty: true
+    networks:
+      - nextcloud-net
+
 
 networks:
   nextcloud-net:
