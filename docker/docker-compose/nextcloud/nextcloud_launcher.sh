@@ -324,6 +324,7 @@ setup_richdocuments() {
     docker compose exec app php occ config:app:set richdocuments wopi_allowlist --value "0.0.0.0/0"
     docker compose exec app php occ config:app:set richdocuments wopi_url --value https://${COLLABORA_DOMAIN}
     docker compose exec app php occ richdocuments:activate-config
+    docker compose exec app php occ config:system:set skeletondirectory --value="" --type=string # emty value disables the demo/placeholder files
 }
 
 # Menu function
