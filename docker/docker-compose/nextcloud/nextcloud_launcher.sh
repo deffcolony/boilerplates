@@ -74,6 +74,7 @@ install_nextcloud() {
     setup_containers || log_message "WARN" "nextcloud_push failed to start. This is normal. Continuing with configuration."
     # nextcloud_push container will fail to start which is normal. Do not stop the script.
 
+    wait_for_app_ready
     setup_notify_push || log_message "WARN" "failed to setup Client Push."
     check_notify_push_stats || log_message "INFO" "Continuing..."
     configure_system_settings
@@ -253,16 +254,40 @@ setup_containers() {
 }
 
 
+# Wait for the container logs to show "Initializing finished"
+wait_for_app_ready() {
+    local container_name="nextcloud"
+    local max_attempts=30 # Maximum number of log checks
+    local attempt=1
+
+    log_message "INFO" "Waiting for container logs to show 'Initializing finished'..."
+
+    while [[ $attempt -le $max_attempts ]]; do
+        # Fetch logs and check for the desired phrase
+        if docker logs "$container_name" 2>&1 | grep -q "Initializing finished"; then
+            log_message "INFO" "'Initializing finished' detected in logs. Proceeding..."
+            setup_notify_push
+            return
+        fi
+
+        log_message "WARN" "Attempt $attempt/$max_attempts: 'Initializing finished' not detected yet. Retrying in 10 seconds..."
+        sleep 10
+        attempt=$((attempt + 1))
+    done
+
+    log_message "ERROR" "Unable to detect 'Initializing finished' in logs after $max_attempts attempts."
+    read -p "Press Enter to uninstall nextcloud and retry..."
+    uninstall_nextcloud
+}
+
 ############################
 #   CONFIGURE NEXTCLOUD    #
 ############################
 setup_notify_push() {
-    log_message "INFO" "Waiting for 15 seconds to ensure containers are ready..."
-    sleep 15
     log_message "INFO" "Setting up notify_push..."
     docker compose exec app php occ app:install notify_push
     docker compose up -d notify_push
-    docker compose exec app sh -c "php occ notify_push:setup https://${OVERWRITEHOST}/push" #TODO
+#    docker compose exec app sh -c "php occ notify_push:setup https://${OVERWRITEHOST}/push" #TODO FIX PUSH SERVER
 }
 
 check_notify_push_stats() {
