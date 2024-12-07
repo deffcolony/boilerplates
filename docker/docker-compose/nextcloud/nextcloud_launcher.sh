@@ -77,11 +77,12 @@ install_nextcloud() {
     wait_for_app_ready
     setup_notify_push || log_message "WARN" "failed to setup Client Push."
     check_notify_push_stats || log_message "INFO" "Continuing..."
-    configure_system_settings
-    setup_imaginary
+    configure_system
+    configure_email
+    configure_imaginary
     limit_parallel_jobs
     install_apps
-    setup_richdocuments
+    install_richdocuments
 
     # Completion message
     log_message "INFO" "Nextcloud installed and configured successfully."
@@ -296,7 +297,7 @@ check_notify_push_stats() {
     docker compose exec app php occ notify_push:self-test
 }
 
-configure_system_settings() {
+configure_system() {
     log_message "INFO" "Configuring system settings..."
     docker compose exec app php occ background:cron
     docker compose exec app php occ db:add-missing-indices
@@ -305,7 +306,21 @@ configure_system_settings() {
     docker compose exec app php occ config:system:set default_phone_region --value='US' # Valid regions here https://en.wikipedia.org/wiki/ISO_3166-1
 }
 
-setup_imaginary() {
+configure_email() {
+    log_message "INFO" "Configuring Email server..."
+    docker compose exec app php occ config:system:set mail_from_address --value='noreply'
+    docker compose exec app php occ config:system:set mail_domain --value='DOMAIN.COM'
+    docker compose exec app php occ config:system:set mail_smtpmode --value='smtp'
+    docker compose exec app php occ config:system:set mail_smtpauthtype --value='LOGIN'
+    docker compose exec app php occ config:system:set mail_smtpsecure --value='tls'
+    docker compose exec app php occ config:system:set mail_smtpauth --value=1
+    docker compose exec app php occ config:system:set mail_smtphost --value='mail.DOMAIN.COM'
+    docker compose exec app php occ config:system:set mail_smtpport --value='587'
+    docker compose exec app php occ config:system:set mail_smtpname --value='noreply@DOMAIN.COM'
+    docker compose exec app php occ config:system:set mail_smtppassword --value='REPLACE_WITH_YOUR_EMAIL_PASSWORD'
+}
+
+configure_imaginary() {
     log_message "INFO" "Setting up Imaginary..."
 #    docker compose exec app php occ config:system:get enabledPreviewProviders
     docker compose exec app php occ config:system:set enabledPreviewProviders 0 --value 'OC\\Preview\\MP3'
@@ -342,7 +357,7 @@ install_apps() {
 }
 
 
-setup_richdocuments() {
+install_richdocuments() {
     log_message "INFO" "Setting up RichDocuments..."
     docker compose exec app php occ app:install richdocuments
     # uncomment below to use wopi_allowlist if emty then allow all hosts
