@@ -62,10 +62,25 @@ check_root() {
     fi
 }
 
+# Exit Function
+exit_program() {
+    clear
+    echo "Bye!"
+    exit 0
+}
+
 # Installation function
 install_nextcloud() {
-    log_message "INFO" "Starting Nextcloud installation..."
 
+    # Check if the Nextcloud container exists
+    if docker ps -a --format '{{.Names}}' | grep -q "^nextcloud$"; then
+        log_message "WARN" "Nextcloud is already installed!"
+        read -p "Press Enter to return home"
+        home
+        return
+    fi
+
+    log_message "INFO" "Starting Nextcloud installation..."
     configure_remoteip
     configure_cron
     configure_env
@@ -95,16 +110,14 @@ install_nextcloud() {
     home
 }
 
-# Configuration function
-configure_nextcloud() {
-
-    # Return to home menu
-    echo -e "Coming soon... edit what apps will be installed, edit domains and more"
-    read -p "Press Enter to return home..."
+# Function to rescan files in Nextcloud
+rescan_files() {
+    log_message "INFO" "Starting file rescan for Nextcloud..."
+    docker compose exec app php occ files:scan --all
+    sudo chown -R "$SERVICE_ACCOUNT":"$SERVICE_ACCOUNT" ./data
+    read -p "Press Enter to continue..."
     home
-
 }
-
 
 # Function to display Danger Zone warning
 display_danger_zone_warning() {
@@ -367,26 +380,52 @@ install_richdocuments() {
     docker compose exec app php occ config:system:set skeletondirectory --value="" --type=string # emty value disables the demo/placeholder files
 }
 
-# Menu function
+# Submenu: Options
+options_menu() {
+    clear
+    echo -e "\033]0;Nextcloud [HOME]\007"
+    echo -e "${blue_fg_strong}| > / Home / Options                                          |${reset}"
+    echo -e "${blue_fg_strong}==============================================================${reset}"
+    echo -e "${cyan_fg_strong} _____________________________________________________________${reset}"
+    echo -e "${cyan_fg_strong}| What would you like to do?                                  |${reset}"
+    echo "  1. UNINSTALL Nextcloud"
+    echo "  0. Back"
+    echo -e "${cyan_fg_strong} _____________________________________________________________${reset}"
+    echo -e "${cyan_fg_strong}|                                                             |${reset}"
+    read -p "  Choose Your Destiny: " choice
+    case $choice in
+        1) uninstall_nextcloud ;;
+        0) home ;;
+        *) 
+            log_message "ERROR" "Invalid number. Please insert a valid number."
+            read -p "Press Enter to continue..."
+            options_menu ;;
+    esac
+}
+
+# Main Menu
 home() {
     clear
     echo -e "\033]0;Nextcloud [HOME]\007"
-    echo -e "${blue_fg_strong}/ Home${reset}"
-    echo "-------------------------------------"
-    echo "What would you like to do?"
-    echo "1. Install Nextcloud"
-    echo "2. Configure Nextcloud"
-    echo "3. UNINSTALL Nextcloud"
-    echo "0. Exit"
-    read -p "Choose Your Destiny (default is 1): " choice
+    echo -e "${blue_fg_strong}| > / Home                                                    |${reset}"
+    echo -e "${blue_fg_strong}==============================================================${reset}"
+    echo -e "${cyan_fg_strong} _____________________________________________________________${reset}"
+    echo -e "${cyan_fg_strong}| What would you like to do?                                  |${reset}"
+    echo "  1. Install Nextcloud"
+    echo "  2. Rescan Data folder for new files"
+    echo "  3. Options"
+    echo "  0. Exit"
+    echo -e "${cyan_fg_strong} _____________________________________________________________${reset}"
+    echo -e "${cyan_fg_strong}|                                                             |${reset}"
+    read -p "  Choose Your Destiny: " choice
 
     # Default to choice 1 if no input
     choice=${choice:-1}
     case $choice in
         1) install_nextcloud ;;
-        2) configure_nextcloud ;;
-        3) uninstall_nextcloud ;;
-        0) exit ;;
+        2) rescan_files ;;
+        3) options_menu ;;
+        0) exit_program ;;
         *) 
             log_message "ERROR" "Invalid number. Please insert a valid number."
             read -p "Press Enter to continue..."
