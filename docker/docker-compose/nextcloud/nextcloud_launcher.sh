@@ -2,8 +2,8 @@
 set -euo pipefail
 
 # Config variables
-DOMAIN="nextcloud.domain"
-COLLABORA_DOMAIN="collabora.domain"
+DOMAIN="nextcloud.domain.com"
+COLLABORA_DOMAIN="collabora.domain.com"
 OVERWRITEHOST=${DOMAIN}
 SERVICE_ACCOUNT="svc_nextcloud_docker"
 
