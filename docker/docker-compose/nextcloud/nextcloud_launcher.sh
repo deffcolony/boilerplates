@@ -430,6 +430,10 @@ danger_zone_menu() {
 ########################################################################################
 create_backup() {
     clear
+    echo -e "\033]0;Nextcloud [CREATE BACKUP]\007"
+    echo -e "${blue_fg_strong}| > / Home / Options / Backup & Restore / Create Backup       |${reset}"
+    echo -e "${blue_fg_strong}==============================================================${reset}"
+
     log_message "INFO" "Starting backup process..."
     local backup_dir="./backups"
     local timestamp=$(date +"%Y%m%d%H%M%S")
@@ -462,7 +466,12 @@ create_backup() {
 
 restore_backup() {
     clear
-    log_message "INFO" "Starting restore process..."
+    echo -e "\033]0;Nextcloud [RESTORE BACKUP]\007"
+    echo -e "${blue_fg_strong}| > / Home / Options / Backup & Restore / Restore Backup      |${reset}"
+    echo -e "${blue_fg_strong}==============================================================${reset}"
+    echo -e "${cyan_fg_strong} _____________________________________________________________${reset}"
+    echo -e "${cyan_fg_strong}| Menu Options:                                               |${reset}"
+    echo "  0. Cancel"
 
     # Backup directory
     local backup_dir="./backups"
@@ -474,7 +483,7 @@ restore_backup() {
     echo "-------------------------------------"
     echo
 
-    read -p "Enter the full path of the backup file to restore (or 0 to cancel): " backup_file
+    read -p "Enter path of the backup file to restore: " backup_file
 
     # Check if the user wants to cancel
     if [ "$backup_file" == "0" ]; then
