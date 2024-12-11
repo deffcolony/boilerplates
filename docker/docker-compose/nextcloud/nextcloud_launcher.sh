@@ -1315,6 +1315,13 @@ check_system_status() {
     docker compose exec -T app du -sh /var/www/html/custom_apps
     docker compose exec -T app du -sh /var/www/html/config
 
+    # Check notify push
+    log_message "INFO" "Checking notify_push..."
+    docker compose exec app php occ notify_push:metrics
+    if ! docker compose exec app php occ notify_push:self-test; then
+        log_message "ERROR" "Failed to perform notify_push:self-test."
+    fi
+
     # List enabled apps
     log_message "INFO" "Checking for server and app updates..."
     docker compose exec -T app php occ update:check
