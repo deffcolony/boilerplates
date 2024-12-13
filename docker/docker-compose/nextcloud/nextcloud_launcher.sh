@@ -246,7 +246,7 @@ setup_notify_push() {
     log_message "INFO" "Setting up notify_push..."
     docker compose exec app php occ app:install notify_push
     docker compose up -d notify_push
-#    docker compose exec app sh -c "php occ notify_push:setup https://${OVERWRITEHOST}/push" #TODO FIX PUSH SERVER
+    docker compose exec app sh -c "php occ notify_push:setup https://${OVERWRITEHOST}/push"
 }
 
 check_notify_push_stats() {
