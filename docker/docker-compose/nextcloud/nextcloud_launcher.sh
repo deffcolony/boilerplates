@@ -1227,7 +1227,7 @@ clear_file_cache() {
 
     log_message "INFO" "Cache cleared successfully."
     read -p "Press Enter to continue..."
-    options_menu
+    maintenance_menu
 }
 
 
@@ -1332,6 +1332,56 @@ check_system_status() {
     maintenance_menu
 }
 
+update_nextcloud() {
+    clear
+    echo -e "\033]0;Nextcloud [UPDATE NEXTCLOUD]\007"
+    echo -e "${blue_fg_strong}| > / Home / Options / Maintenance / Update Nextcloud         |${reset}"
+    echo -e "${blue_fg_strong}==============================================================${reset}"
+    log_message "INFO" "Starting Nextcloud update process..."
+
+    # Step 1: Bring down the current Nextcloud stack
+    log_message "INFO" "Stopping Nextcloud services..."
+    if ! docker compose down; then
+        log_message "ERROR" "Failed to stop Nextcloud services. Aborting update process."
+        read -p "Press Enter to return to the menu..."
+        maintenance_menu
+        return
+    fi
+
+    # Step 2: Pull the latest images
+    log_message "INFO" "Pulling latest Docker images for Nextcloud and its services..."
+    if ! docker compose pull; then
+        log_message "ERROR" "Failed to pull latest Docker images. Aborting update process."
+        read -p "Press Enter to return to the menu..."
+        maintenance_menu
+        return
+    fi
+
+    # Step 3: Start the updated Nextcloud stack
+    log_message "INFO" "Starting Nextcloud services with updated images..."
+    if ! docker compose up -d; then
+        log_message "ERROR" "Failed to start Nextcloud services. Please check your Docker setup."
+        read -p "Press Enter to return to the menu..."
+        maintenance_menu
+        return
+    fi
+
+    # Step 4: Run Nextcloud database and application updates
+    log_message "INFO" "Running Nextcloud database and application updates..."
+    if ! docker compose exec -T app php occ upgrade; then
+        log_message "ERROR" "Nextcloud upgrade command failed. Services are running but updates may not be applied."
+        read -p "Press Enter to return to the menu..."
+        maintenance_menu
+        return
+    fi
+
+    # Completion message
+    log_message "INFO" "Nextcloud updated successfully."
+    read -p "Press Enter to continue..."
+    maintenance_menu
+}
+
+
 maintenance_menu() {
     clear
     echo -e "\033]0;Nextcloud [MAINTENANCE]\007"
@@ -1344,6 +1394,7 @@ maintenance_menu() {
     echo "  3. Clear trashbin for all users"
     echo "  4. Optimize Database"
     echo "  5. Check System Status"
+    echo "  6. Update Nextcloud"
     echo -e "${cyan_fg_strong} _____________________________________________________________${reset}"
     echo -e "${cyan_fg_strong}| Menu Options:                                               |${reset}"
     echo "  0. Back"
@@ -1356,6 +1407,7 @@ maintenance_menu() {
         3) clear_trashbin ;;
         4) optimize_database ;;
         5) check_system_status ;;
+        6) update_nextcloud ;;
         0) options_menu ;;
         *) 
             log_message "ERROR" "Invalid number. Please insert a valid number."
