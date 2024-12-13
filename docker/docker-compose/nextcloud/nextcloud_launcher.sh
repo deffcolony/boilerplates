@@ -195,9 +195,15 @@ EOF
 
 setup_service_account() {
     log_message "INFO" "Setting up service account..."
-    sudo useradd --no-create-home $SERVICE_ACCOUNT --shell /usr/sbin/nologin --uid 1004
+    # Does the service account already exist?
+    if id "$SERVICE_ACCOUNT" &>/dev/null; then
+        log_message "INFO" "Service account $SERVICE_ACCOUNT already exists."
+        return
+    fi
+    sudo useradd --no-create-home "$SERVICE_ACCOUNT" --shell /usr/sbin/nologin --uid 1004
     log_message "INFO" "Service account $SERVICE_ACCOUNT created."
 }
+
 
 setup_permissions() {
     log_message "INFO" "Setting up mount points and permissions..."
@@ -368,7 +374,6 @@ uninstall_nextcloud() {
         echo -ne "\033[K"
 
         log_message "INFO" "Proceeding with uninstallation..."
-        read -p "Press Enter to continue..."
         # Remove Docker Containers, Volumes, and Network for Nextcloud
         log_message "INFO" "Stopping and removing Nextcloud containers, volumes, and network..."
         docker compose down --volumes --remove-orphans || log_message "WARN" "Docker compose down encountered issues. Continuing cleanup."
