@@ -29,7 +29,7 @@ services:
       - /media/disk/exthdd01/extarrs/data/library/pictures:/media/pictures
       - /media/disk/exthdd01/extarrs/data/library/books:/media/books
       - ./appdata/jellyfin/config:/config
-      - ./appdata/jellyfin/cache:/cache"
+      - ./appdata/jellyfin/cache:/cache
       - /dev/shm:/transcode
 #      - /opt/vc/lib:/opt/vc/lib # Raspberry Pi GPU libraries for multimedia operations
     ports:
