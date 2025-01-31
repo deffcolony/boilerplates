@@ -1,0 +1,7 @@
+services:
+  web:
+    image: myproject-nuxt:latest
+    container_name: myproject-nuxt
+    restart: unless-stopped
+    ports:
+      - 8170:3000
