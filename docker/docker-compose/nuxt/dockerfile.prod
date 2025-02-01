@@ -1,0 +1,42 @@
+# Stage 1: Build the application
+FROM node:22.11.0-alpine as builder
+
+# Create directories for the builder and app
+RUN mkdir -p /usr/src/app /usr/src/builder
+
+# Set working directory for the builder
+WORKDIR /usr/src/builder
+
+# Copy package.json and package-lock.json
+COPY package*.json ./
+
+# Install all dependencies (including dev dependencies)
+RUN npm install
+
+# Copy the rest of the application code
+COPY . .
+
+# Build the application
+RUN npm run build
+
+# Copy the built files to the app directory
+RUN cp -r /usr/src/builder/.output /usr/src/app
+
+# Stage 2: Serve the application
+FROM node:22.11.0-alpine
+
+# Set working directory for the app
+WORKDIR /usr/src/app
+
+# Copy built files from the builder stage
+COPY --from=builder /usr/src/app/.output /usr/src/app/.output
+
+# Install only production dependencies
+COPY package*.json ./
+RUN npm install --omit=dev
+
+# Expose the production server port
+EXPOSE 3000
+
+# Start the production server
+CMD ["node", "/usr/src/app/.output/server/index.mjs"]

@@ -1,7 +1,28 @@
 services:
-  web:
-    image: myproject-nuxt:latest
-    container_name: myproject-nuxt
+  app_dev:
+    profiles: ["dev"] # remove/comment-out to use this service as default docker compose up -d if enabled use: docker compose --profile dev up --build
+    container_name: nuxt_dev_myproject
     restart: unless-stopped
+    build:
+      context: .
+      dockerfile: dockerfile.dev
     ports:
-      - 8170:3000
+      - 3000:3000
+    volumes:
+      - .:/app
+      - /app/node_modules  # Avoid overwriting node_modules
+    environment:
+      - NODE_ENV=development
+
+
+  app_prod:
+    profiles: ["prod"] # remove/comment-out to use this service as default docker compose up -d if enabled use: docker-compose --profile prod up --build 
+    container_name: nuxt_prod_myproject
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: dockerfile.prod
+    ports:
+      - 3000:3000
+    environment:
+      - NODE_ENV=production
