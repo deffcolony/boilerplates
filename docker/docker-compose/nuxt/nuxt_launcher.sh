@@ -569,6 +569,23 @@ build_and_deploy() {
     home
 }
 
+# Shared function to build only
+build_only() {
+    local profile=$1
+    local dockerfile="dockerfile.$profile"
+    local image_name="nuxt-app-$profile"
+
+    log_message "INFO" "Building Docker image for $profile..."
+    docker build -t "$image_name" -f "$dockerfile" .
+    if [ $? -eq 0 ]; then
+        log_message "INFO" "Nuxt Docker image for $profile built successfully."
+    else
+        log_message "ERROR" "Failed to build Docker image for $profile."
+    fi
+    read -p "Press Enter to continue..."
+    home
+}
+
 # Dev build and deploy
 build_deploy_dev() {
     pull_latest_code
@@ -581,6 +598,19 @@ build_deploy_prod() {
     build_and_deploy "prod"
 }
 
+# Dev build only
+build_dev() {
+    pull_latest_code
+    build_only "dev"
+}
+
+# Prod build only
+build_prod() {
+    pull_latest_code
+    build_only "prod"
+}
+
+
 
 ########################################################################################
 ####################### HOME MENU  #####################################################
@@ -591,12 +621,16 @@ home() {
     echo -e "${blue_fg_strong}| > / Home                                                    |${reset}"
     echo -e "${blue_fg_strong}==============================================================${reset}"
     echo -e "${cyan_fg_strong} _____________________________________________________________${reset}"
-    echo -e "${cyan_fg_strong}| What would you like to do?                                  |${reset}"
-    echo "  1. Dev: Build & Deploy"
-    echo "  2. Prod: Build & Deploy"
-    echo "  3. Options"
+    echo -e "${cyan_fg_strong}| Development                                                 |${reset}"
+    echo "  1. [DEV] Build & Deploy"
+    echo "  2. [DEV] Build only"
+    echo -e "${cyan_fg_strong} _____________________________________________________________${reset}"
+    echo -e "${cyan_fg_strong}| Production                                                  |${reset}"
+    echo "  3. [PROD] Build & Deploy"
+    echo "  4. [PROD] Build only"
     echo -e "${cyan_fg_strong} _____________________________________________________________${reset}"
     echo -e "${cyan_fg_strong}| Menu Options:                                               |${reset}"
+    echo "  5. Options"
     echo "  0. Exit"
     echo -e "${cyan_fg_strong} _____________________________________________________________${reset}"
     echo -e "${cyan_fg_strong}|                                                             |${reset}"
@@ -606,8 +640,10 @@ home() {
     choice=${choice:-1}
     case $choice in
         1) build_deploy_dev ;;
-        2) build_deploy_prod ;;
-        3) options_menu ;;
+        2) build_dev ;;
+        3) build_deploy_prod ;;
+        4) build_prod ;;
+        5) options_menu ;;
         0) exit_program ;;
         *) 
             log_message "ERROR" "Invalid number. Please insert a valid number."
