@@ -56,57 +56,7 @@ check_root() {
     fi
 }
 
-########################################################################################
-########################################################################################
-####################### HOME MENU FUNCTIONS  ###########################################
-########################################################################################
-########################################################################################
 
-# Exit Function
-exit_program() {
-    clear
-    echo "Bye!"
-    exit 0
-}
-
-
-build_deploy() {
-    pull_latest_changes
-    build_docker_image
-    start_docker_services
-}
-
-build() {
-    pull_latest_changes
-    build_docker_image
-}
-
-# Function to pull the latest code from the repository
-pull_latest_changes() {
-    if [ -d "$PROJECT_DIR" ]; then
-        log_message "INFO" "Directory $PROJECT_DIR exists, pulling latest changes..."
-        cd "$PROJECT_DIR"
-        git pull "$REPO_URL"
-    else
-        log_message "INFO" "Directory $PROJECT_DIR does not exist, cloning repository..."
-        git clone "$REPO_URL" "$PROJECT_DIR"
-        cd "$PROJECT_DIR"
-    fi
-}
-
-# Function to build the Docker image from the Dockerfile
-build_docker_image() {
-    log_message "INFO" "Building Docker image..."
-    docker build -t "$IMAGE_NAME" -f .dockerfile .
-    log_message "INFO" "Nuxt Docker image built successfully."
-}
-
-# Function to start services using Docker Compose
-start_docker_services() {
-    log_message "INFO" "Starting Docker services..."
-    docker compose up -d
-    log_message "INFO" "Docker services started successfully."
-}
 
 
 ########################################################################################
@@ -581,6 +531,57 @@ options_menu() {
     esac
 }
 
+
+########################################################################################
+########################################################################################
+####################### HOME MENU FUNCTIONS  ###########################################
+########################################################################################
+########################################################################################
+
+# Exit Function
+exit_program() {
+    clear
+    echo "Bye!"
+    exit 0
+}
+
+# Shared function to pull the latest code
+pull_latest_code() {
+    if [ -d "$PROJECT_DIR" ]; then
+        log_message "INFO" "Directory $PROJECT_DIR exists, pulling latest changes..."
+        cd "$PROJECT_DIR" || { log_message "ERROR" "Failed to change directory to $PROJECT_DIR"; exit 1; }
+        git pull "$REPO_URL"
+    else
+        log_message "INFO" "Directory $PROJECT_DIR does not exist, cloning repository..."
+        git clone "$REPO_URL" "$PROJECT_DIR"
+        cd "$PROJECT_DIR" || { log_message "ERROR" "Failed to change directory to $PROJECT_DIR"; exit 1; }
+    fi
+}
+
+# Shared function to build and deploy
+build_and_deploy() {
+    local profile=$1
+    log_message "INFO" "Building Docker image for $profile..."
+    docker compose --profile "$profile" down
+    docker compose --profile "$profile" up -d --build
+    log_message "INFO" "Nuxt Docker image for $profile built successfully."
+    read -p "Press Enter to continue..."
+    home
+}
+
+# Dev build and deploy
+build_deploy_dev() {
+    pull_latest_code
+    build_and_deploy "dev"
+}
+
+# Prod build and deploy
+build_deploy_prod() {
+    pull_latest_code
+    build_and_deploy "prod"
+}
+
+
 ########################################################################################
 ####################### HOME MENU  #####################################################
 ########################################################################################
@@ -591,8 +592,8 @@ home() {
     echo -e "${blue_fg_strong}==============================================================${reset}"
     echo -e "${cyan_fg_strong} _____________________________________________________________${reset}"
     echo -e "${cyan_fg_strong}| What would you like to do?                                  |${reset}"
-    echo "  1. Build and Deploy Nuxt Project"
-    echo "  2. Build only"
+    echo "  1. Dev: Build & Deploy"
+    echo "  2. Prod: Build & Deploy"
     echo "  3. Options"
     echo -e "${cyan_fg_strong} _____________________________________________________________${reset}"
     echo -e "${cyan_fg_strong}| Menu Options:                                               |${reset}"
@@ -604,8 +605,8 @@ home() {
     # Default to choice 1 if no input
     choice=${choice:-1}
     case $choice in
-        1) build_deploy ;;
-        2) build ;;
+        1) build_deploy_dev ;;
+        2) build_deploy_prod ;;
         3) options_menu ;;
         0) exit_program ;;
         *) 
