@@ -592,16 +592,28 @@ build_deploy_dev() {
     build_and_deploy "dev"
 }
 
-# Prod build and deploy
-build_deploy_prod() {
-    pull_latest_code
-    build_and_deploy "prod"
-}
-
 # Dev build only
 build_dev() {
     pull_latest_code
     build_only "dev"
+}
+
+# Stage build and deploy
+build_deploy_stage() {
+    pull_latest_code
+    build_and_deploy "stage"
+}
+
+# Stage build only
+build_stage() {
+    pull_latest_code
+    build_only "stage"
+}
+
+# Prod build and deploy
+build_deploy_prod() {
+    pull_latest_code
+    build_and_deploy "prod"
 }
 
 # Prod build only
@@ -625,12 +637,16 @@ home() {
     echo "  1. [DEV] Build & Deploy"
     echo "  2. [DEV] Build only"
     echo -e "${cyan_fg_strong} _____________________________________________________________${reset}"
+    echo -e "${cyan_fg_strong}| Staging                                                     |${reset}"
+    echo "  3. [STAGE] Build & Deploy"
+    echo "  4. [STAGE] Build only"
+    echo -e "${cyan_fg_strong} _____________________________________________________________${reset}"
     echo -e "${cyan_fg_strong}| Production                                                  |${reset}"
-    echo "  3. [PROD] Build & Deploy"
-    echo "  4. [PROD] Build only"
+    echo "  5. [PROD] Build & Deploy"
+    echo "  6. [PROD] Build only"
     echo -e "${cyan_fg_strong} _____________________________________________________________${reset}"
     echo -e "${cyan_fg_strong}| Menu Options:                                               |${reset}"
-    echo "  5. Options"
+    echo "  7. Options"
     echo "  0. Exit"
     echo -e "${cyan_fg_strong} _____________________________________________________________${reset}"
     echo -e "${cyan_fg_strong}|                                                             |${reset}"
@@ -641,9 +657,11 @@ home() {
     case $choice in
         1) build_deploy_dev ;;
         2) build_dev ;;
-        3) build_deploy_prod ;;
-        4) build_prod ;;
-        5) options_menu ;;
+        3) build_deploy_stage ;;
+        4) build_stage ;;
+        5) build_deploy_prod ;;
+        6) build_prod ;;
+        7) options_menu ;;
         0) exit_program ;;
         *) 
             log_message "ERROR" "Invalid number. Please insert a valid number."

@@ -12,8 +12,21 @@ services:
       - .:/app
       - /app/node_modules  # Avoid overwriting node_modules
     environment:
-      - NODE_ENV=development
+      NODE_ENV: development
+      NUXT_PUBLIC_SITE_URL: http://0.0.0.0:3000
 
+  app_stage:
+    profiles: ["stage"] # remove/comment-out to use this service as default docker compose up -d if enabled use: docker-compose --profile stage up --build 
+    container_name: nuxt_stage_myproject
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: dockerfile.prod
+    ports:
+      - 8171:3000
+    environment:
+      NODE_ENV: production
+      NUXT_PUBLIC_SITE_URL: https://staging.DOMAIN.COM
 
   app_prod:
     profiles: ["prod"] # remove/comment-out to use this service as default docker compose up -d if enabled use: docker-compose --profile prod up --build 
@@ -25,4 +38,5 @@ services:
     ports:
       - 8170:3000
     environment:
-      - NODE_ENV=production
+      NODE_ENV: production
+      NUXT_PUBLIC_SITE_URL: https://DOMAIN.COM
