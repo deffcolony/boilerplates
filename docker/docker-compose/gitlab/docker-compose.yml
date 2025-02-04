@@ -4,26 +4,83 @@ services:
   gitlab-runner:
     image: gitlab/gitlab-runner:alpine
     container_name: gitlab-runner
+    restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./gitlab-runner:/etc/gitlab-runner
-    restart: unless-stopped
     depends_on:
       - web
 
   web:
-    image: 'gitlab/gitlab-ce:latest'
+    image: gitlab/gitlab-ce:latest
     container_name: gitlab-ce
-    hostname: 'gitlab.example.com'
+    hostname: gitlab.DOMAIN.COM
+    restart: unless-stopped
+    shm_size: 256m
     environment:
       GITLAB_OMNIBUS_CONFIG: |
-        external_url 'https://gitlab.example.com'
-        # Add any other gitlab.rb configuration here, each on its own line
+        external_url "https://gitlab.DOMAIN.COM"
+        nginx['listen_https'] = false
+        nginx['redirect_http_to_https'] = false
+        nginx['listen_port'] = 80
+        letsencrypt['enable'] = false
+        gitlab_rails['ldap_enabled'] = false
+        gitlab_rails['gitlab_shell_ssh_port'] = 22
+        gitlab_rails['gitlab_username_changing_enabled'] = true
+
+        # SMTP email
+        gitlab_rails['gitlab_email_enabled'] = true
+        gitlab_rails['gitlab_email_from'] = "noreply@DOMAIN.COM"
+        gitlab_rails['gitlab_email_reply_to'] = "noreply@DOMAIN.COM"
+        gitlab_rails['smtp_enable'] = true
+        gitlab_rails['smtp_address'] = "mail.DOMAIN.COM"
+        gitlab_rails['smtp_port'] = 587
+        gitlab_rails['smtp_user_name'] = "noreply@DOMAIN.COM"
+        gitlab_rails['smtp_password'] = "passwordhere"
+        gitlab_rails['smtp_domain'] = "www.DOMAIN.COM"
+        gitlab_rails['smtp_authentication'] = "plain"
+        gitlab_rails['smtp_enable_starttls_auto'] = true
+        gitlab_rails['smtp_tls'] = false
+
+        # Reply by email
+        #gitlab_rails['incoming_email_enabled'] = true
+        #gitlab_rails['incoming_email_address'] = "git+%{key}@DOMAIN.COM"
+        #gitlab_rails['incoming_email_email'] = "git@DOMAIN.COM"
+        #gitlab_rails['incoming_email_password'] = "EMAILPASSWORDHERE"
+        #gitlab_rails['incoming_email_mailbox_name'] = "inbox"
+        #gitlab_rails['incoming_email_idle_timeout'] = 60
+        #gitlab_rails['incoming_email_host'] = "mail.DOMAIN.COM"
+        #gitlab_rails['incoming_email_port'] = 587
+        #gitlab_rails['incoming_email_ssl'] = true
+        #gitlab_rails['incoming_email_start_tls'] = false
+
+        # Docker registry
+        #registry_external_url "https://registrygl.DOMAIN.COM"
+        #gitlab_rails['registry_enabled'] = true
+        #gitlab_rails['registry_api_url'] = "https://registrygl.DOMAIN.COM"
+        #registry['enable'] = true
+        #registry_nginx['enable'] = false
+        #registry['registry_http_addr'] = "0.0.0.0:5000"
+
+        # GitLab Pages
+        #pages_external_url "https://pages.DOMAIN.COM"
+        #gitlab_pages['enable'] = true
+        #pages_nginx['enable'] = true
+        #pages_nginx['listen_https'] = false
+        #pages_nginx['redirect_http_to_https'] = true
+        #pages_nginx['listen_port'] = 5100
+        #pages_nginx['proxy_set_headers'] = {"X-Forwarded-Proto" => "https","X-Forwarded-Ssl" => "on"}
+
     volumes:
       - ./config:/etc/gitlab
       - ./logs:/var/log/gitlab
       - ./data:/var/opt/gitlab
     ports:
-      - '8225:80'
-      - '8226:443'
-    restart: unless-stopped
+      - 8225:80
+      - 8226:443
+      - 5000:5000
+      - 5005:5005
+      - 5100:5100
+      - 5050:5050
+#      - 22:22
+#      - 587:587
