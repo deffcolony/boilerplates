@@ -565,7 +565,8 @@ build_and_deploy() {
     docker compose --profile "$profile" down || { log_message "ERROR" "Failed to stop existing containers for $profile"; read -p "Press Enter to continue..."; home; }
     docker compose --profile "$profile" up -d --build || { log_message "ERROR" "Failed to build and deploy Docker image for $profile"; read -p "Press Enter to continue..."; home; }
     log_message "INFO" "Nuxt Docker image for $profile built and deployed successfully."
-    return 0
+    read -p "Press Enter to continue..."
+    home
 }
 
 # Shared function to build only
@@ -577,7 +578,8 @@ build_only() {
     log_message "INFO" "Building Docker image for $profile..."
     docker build -t "$image_name" -f "$dockerfile" . || { log_message "ERROR" "Failed to build Docker image for $profile"; read -p "Press Enter to continue..."; home; }
     log_message "INFO" "Nuxt Docker image for $profile built successfully."
-    return 0
+    read -p "Press Enter to continue..."
+    home
 }
 
 # Dev build and deploy
