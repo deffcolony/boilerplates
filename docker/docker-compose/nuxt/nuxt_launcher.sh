@@ -549,12 +549,10 @@ exit_program() {
 pull_latest_code() {
     if [ -d "$PROJECT_DIR" ]; then
         log_message "INFO" "Directory $PROJECT_DIR exists, pulling latest changes..."
-        cd "$PROJECT_DIR"
-        git pull "$REPO_URL" || { log_message "ERROR" "Failed to pull latest changes from repository"; read -p "Press Enter to continue..."; home; }
+        git -C "$PROJECT_DIR" pull || { log_message "ERROR" "Failed to pull latest changes from repository"; read -p "Press Enter to continue..."; home; }
     else
         log_message "INFO" "Directory $PROJECT_DIR does not exist, cloning repository..."
         git clone "$REPO_URL" "$PROJECT_DIR" || { log_message "ERROR" "Failed to clone repository"; read -p "Press Enter to continue..."; home; }
-        cd "$PROJECT_DIR"
     fi
 }
 
@@ -562,8 +560,8 @@ pull_latest_code() {
 build_and_deploy() {
     local profile=$1
     log_message "INFO" "Building Docker image for $profile..."
-    docker compose --profile "$profile" down || { log_message "ERROR" "Failed to stop existing containers for $profile"; read -p "Press Enter to continue..."; home; }
-    docker compose --profile "$profile" up -d --build || { log_message "ERROR" "Failed to build and deploy Docker image for $profile"; read -p "Press Enter to continue..."; home; }
+    docker compose -f "$PROJECT_DIR/docker-compose.yml" --profile "$profile" down || { log_message "ERROR" "Failed to stop existing containers for $profile"; read -p "Press Enter to continue..."; home; }
+    docker compose -f "$PROJECT_DIR/docker-compose.yml" --profile "$profile" up -d --build || { log_message "ERROR" "Failed to build and deploy Docker image for $profile"; read -p "Press Enter to continue..."; home; }
     log_message "INFO" "Nuxt Docker image for $profile built and deployed successfully."
     read -p "Press Enter to continue..."
     home
@@ -576,7 +574,7 @@ build_only() {
     local image_name="nuxt-app-$profile"
 
     log_message "INFO" "Building Docker image for $profile..."
-    docker build -t "$image_name" -f "$dockerfile" . || { log_message "ERROR" "Failed to build Docker image for $profile"; read -p "Press Enter to continue..."; home; }
+    docker build -t "$image_name" -f "$dockerfile" "$PROJECT_DIR" || { log_message "ERROR" "Failed to build Docker image for $profile"; read -p "Press Enter to continue..."; home; }
     log_message "INFO" "Nuxt Docker image for $profile built successfully."
     read -p "Press Enter to continue..."
     home
