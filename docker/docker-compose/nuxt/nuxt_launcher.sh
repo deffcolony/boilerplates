@@ -560,9 +560,17 @@ pull_latest_code() {
 build_and_deploy() {
     local profile=$1
     log_message "INFO" "Building Docker image for $profile..."
-    docker compose -f "$PROJECT_DIR/docker-compose.yml" --profile "$profile" down || { log_message "ERROR" "Failed to stop existing containers for $profile"; read -p "Press Enter to continue..."; home; }
+    docker compose -f "$PROJECT_DIR/docker-compose.yml" --profile "$profile" down --remove-orphans || { log_message "ERROR" "Failed to stop existing containers for $profile"; read -p "Press Enter to continue..."; home; }
     docker compose -f "$PROJECT_DIR/docker-compose.yml" --profile "$profile" up -d --build || { log_message "ERROR" "Failed to build and deploy Docker image for $profile"; read -p "Press Enter to continue..."; home; }
     log_message "INFO" "Nuxt Docker image for $profile built and deployed successfully."
+
+    # Call Discord notification script if it exists
+    if [ -f "./notify_discord.sh" ]; then
+        ./notify_discord.sh "$profile" || log_message "WARNING" "Failed to send Discord notification for $profile."
+    else
+        log_message "WARNING" "Discord notification script notify_discord.sh not found. This is optional."
+    fi
+
     read -p "Press Enter to continue..."
     home
 }
@@ -576,6 +584,14 @@ build_only() {
     log_message "INFO" "Building Docker image for $profile..."
     docker build -t "$image_name" -f "$dockerfile" "$PROJECT_DIR" || { log_message "ERROR" "Failed to build Docker image for $profile"; read -p "Press Enter to continue..."; home; }
     log_message "INFO" "Nuxt Docker image for $profile built successfully."
+
+    # Call Discord notification script if it exists
+    if [ -f "./notify_discord.sh" ]; then
+        ./notify_discord.sh "$profile" || log_message "WARNING" "Failed to send Discord notification for $profile."
+    else
+        log_message "WARNING" "Discord notification script notify_discord.sh not found. This is optional."
+    fi
+    
     read -p "Press Enter to continue..."
     home
 }
