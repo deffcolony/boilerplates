@@ -1,0 +1,140 @@
+version: "3.8"
+
+services:
+  synapse:
+    image: matrixdotorg/synapse:latest
+    container_name: synapse
+    volumes:
+      - ./data:/data
+    ports:
+      - "8150:8008"
+      - "8151:443"
+    restart: unless-stopped
+
+
+#####################################################################
+#####################################################################
+#                 MAUTRIX BRIDGES FOR SYNAPSE                       #
+#               Uncomment a bridge to enable it.                    #
+#####################################################################
+#####################################################################
+
+# --- Mautrix-WhatsApp - WhatsApp Bridge ---
+#  mautrix-whatsapp:
+#    image: dock.mau.dev/mautrix/whatsapp:latest
+#    container_name: mautrix-whatsapp
+#    volumes:
+#      - ./bridges/whatsapp:/data
+#    restart: unless-stopped
+#    depends_on:
+#      - synapse
+
+
+# --- Mautrix-Meta - Meta Bridge ---
+#  mautrix-meta:
+#    image: dock.mau.dev/mautrix/meta:latest
+#    container_name: mautrix-meta
+#    volumes:
+#      - ./bridges/meta:/data
+#    restart: unless-stopped
+#    depends_on:
+#      - synapse
+
+
+# --- Mautrix-Discord - Discord Bridge ---
+#  mautrix-discord:
+#    image: dock.mau.dev/mautrix/discord:latest
+#    container_name: mautrix-discord
+#    volumes:
+#      - ./bridges/discord:/data
+#    restart: unless-stopped
+#    depends_on:
+#      - synapse
+
+
+# --- Mautrix-Telegram - Telegram Bridge ---
+#  mautrix-telegram:
+#    image: dock.mau.dev/mautrix/telegram:latest
+#    container_name: mautrix-telegram
+#    volumes:
+#      - ./bridges/telegram:/data
+#    restart: unless-stopped
+#    depends_on:
+#      - synapse
+
+
+# --- Mautrix-Signal - Signal Bridge ---
+#  mautrix-signal:
+#    image: dock.mau.dev/mautrix/signal:latest
+#    container_name: mautrix-signal
+#    volumes:
+#      - ./bridges/signal:/data
+#    restart: unless-stopped
+#    depends_on:
+#      - synapse
+
+
+# --- Mautrix-Twitter - Twitter Bridge ---
+#  mautrix-twitter:
+#    image: dock.mau.dev/mautrix/twitter:latest
+#    container_name: mautrix-twitter
+#    volumes:
+#      - ./bridges/twitter:/data
+#    restart: unless-stopped
+#    depends_on:
+#      - synapse
+
+
+# --- Mautrix-Bluesky - Bluesky Bridge ---
+#  mautrix-bluesky:
+#    image: dock.mau.dev/mautrix/bluesky:latest
+#    container_name: mautrix-bluesky
+#    volumes:
+#      - ./bridges/bluesky:/data
+#    restart: unless-stopped
+#    depends_on:
+#      - synapse
+
+
+# --- Mautrix-Slack - Slack Bridge ---
+#  mautrix-slack:
+#    image: dock.mau.dev/mautrix/slack:latest
+#    container_name: mautrix-slack
+#    volumes:
+#      - ./bridges/slack:/data
+#    restart: unless-stopped
+#    depends_on:
+#      - synapse
+
+
+# --- Mautrix-GoogleChat - Google Chat Bridge ---
+#  mautrix-googlechat:
+#    image: dock.mau.dev/mautrix/googlechat:latest
+#    container_name: mautrix-googlechat
+#    volumes:
+#      - ./bridges/googlechat:/data
+#    restart: unless-stopped
+#    depends_on:
+#      - synapse
+
+
+# --- Mautrix-GMessages - Google Messages Bridge ---
+#  mautrix-gmessages:
+#    image: dock.mau.dev/mautrix/gmessages:latest
+#    container_name: mautrix-gmessages
+#    volumes:
+#      - ./bridges/gmessages:/data
+#    restart: unless-stopped
+#    depends_on:
+#      - synapse
+
+
+# --- Mautrix-GVoice - Google Voice Bridge ---
+#  mautrix-gvoice:
+#    image: dock.mau.dev/mautrix/gvoice:latest
+#    container_name: mautrix-gvoice
+#    volumes:
+#      - ./bridges/gvoice:/data
+#    restart: unless-stopped
+#    depends_on:
+#      - synapse
