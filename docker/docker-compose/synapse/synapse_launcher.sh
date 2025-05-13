@@ -403,10 +403,11 @@ EOF
         log_message "WARN" "Failed to restart Synapse. Please restart manually to apply changes."
     }
 
-    # --- Start the bridge container ---
+    # --- Start the container ---
     log_message "INFO" "Starting mautrix-whatsapp container..."
-    docker compose -f "$SYNAPSE_BASE_DIR/docker-compose.yml" start mautrix-whatsapp || {
-        log_message "WARN" "Failed to restart Synapse. Please restart manually to apply changes."
+    docker compose -f "$SYNAPSE_BASE_DIR/docker-compose.yml" up -d mautrix-whatsapp || {
+        log_message "ERROR" "Failed to start mautrix-meta container."
+        return
     }
 
     # --- Final Steps Reminder ---
@@ -612,9 +613,15 @@ EOF
     log_message "INFO" "Updating $SYNAPSE_HOMESERVER_YAML..."
     add_registration_to_homeserver "$container_registration_path" "$bridge_name"
 
+    # --- Restart Synapse to Apply Changes ---
+    log_message "INFO" "Restarting Synapse to apply changes..."
+    docker compose -f "$SYNAPSE_BASE_DIR/docker-compose.yml" restart synapse || {
+        log_message "WARN" "Failed to restart Synapse. Please restart manually to apply changes."
+    }
+
     # --- Start the container ---
     log_message "INFO" "Starting mautrix-meta container..."
-    docker compose -f "$SYNAPSE_BASE_DIR/docker-compose.yml" up -d || {
+    docker compose -f "$SYNAPSE_BASE_DIR/docker-compose.yml" up -d mautrix-meta || {
         log_message "ERROR" "Failed to start mautrix-meta container."
         return
     }
@@ -821,9 +828,15 @@ EOF
     log_message "INFO" "Updating $SYNAPSE_HOMESERVER_YAML..."
     add_registration_to_homeserver "$container_registration_path" "$bridge_name"
 
+    # --- Restart Synapse to Apply Changes ---
+    log_message "INFO" "Restarting Synapse to apply changes..."
+    docker compose -f "$SYNAPSE_BASE_DIR/docker-compose.yml" restart synapse || {
+        log_message "WARN" "Failed to restart Synapse. Please restart manually to apply changes."
+    }
+
     # --- Start the container ---
     log_message "INFO" "Starting mautrix-discord container..."
-    docker compose -f "$SYNAPSE_BASE_DIR/docker-compose.yml" up -d || {
+    docker compose -f "$SYNAPSE_BASE_DIR/docker-compose.yml" up -d mautrix-discord || {
         log_message "ERROR" "Failed to start mautrix-discord container."
         return
     }
@@ -1030,9 +1043,15 @@ EOF
     log_message "INFO" "Updating $SYNAPSE_HOMESERVER_YAML..."
     add_registration_to_homeserver "$container_registration_path" "$bridge_name"
 
+    # --- Restart Synapse to Apply Changes ---
+    log_message "INFO" "Restarting Synapse to apply changes..."
+    docker compose -f "$SYNAPSE_BASE_DIR/docker-compose.yml" restart synapse || {
+        log_message "WARN" "Failed to restart Synapse. Please restart manually to apply changes."
+    }
+
     # --- Start the container ---
     log_message "INFO" "Starting mautrix-telegram container..."
-    docker compose -f "$SYNAPSE_BASE_DIR/docker-compose.yml" up -d || {
+    docker compose -f "$SYNAPSE_BASE_DIR/docker-compose.yml" up -d mautrix-telegram || {
         log_message "ERROR" "Failed to start mautrix-telegram container."
         return
     }
@@ -1239,9 +1258,15 @@ EOF
     log_message "INFO" "Updating $SYNAPSE_HOMESERVER_YAML..."
     add_registration_to_homeserver "$container_registration_path" "$bridge_name"
 
+    # --- Restart Synapse to Apply Changes ---
+    log_message "INFO" "Restarting Synapse to apply changes..."
+    docker compose -f "$SYNAPSE_BASE_DIR/docker-compose.yml" restart synapse || {
+        log_message "WARN" "Failed to restart Synapse. Please restart manually to apply changes."
+    }
+
     # --- Start the container ---
     log_message "INFO" "Starting mautrix-signal container..."
-    docker compose -f "$SYNAPSE_BASE_DIR/docker-compose.yml" up -d || {
+    docker compose -f "$SYNAPSE_BASE_DIR/docker-compose.yml" up -d mautrix-signal || {
         log_message "ERROR" "Failed to start mautrix-signal container."
         return
     }
@@ -1448,9 +1473,15 @@ EOF
     log_message "INFO" "Updating $SYNAPSE_HOMESERVER_YAML..."
     add_registration_to_homeserver "$container_registration_path" "$bridge_name"
 
+    # --- Restart Synapse to Apply Changes ---
+    log_message "INFO" "Restarting Synapse to apply changes..."
+    docker compose -f "$SYNAPSE_BASE_DIR/docker-compose.yml" restart synapse || {
+        log_message "WARN" "Failed to restart Synapse. Please restart manually to apply changes."
+    }
+
     # --- Start the container ---
     log_message "INFO" "Starting mautrix-twitter container..."
-    docker compose -f "$SYNAPSE_BASE_DIR/docker-compose.yml" up -d || {
+    docker compose -f "$SYNAPSE_BASE_DIR/docker-compose.yml" up -d mautrix-twitter || {
         log_message "ERROR" "Failed to start mautrix-twitter container."
         return
     }
@@ -1657,9 +1688,15 @@ EOF
     log_message "INFO" "Updating $SYNAPSE_HOMESERVER_YAML..."
     add_registration_to_homeserver "$container_registration_path" "$bridge_name"
 
+    # --- Restart Synapse to Apply Changes ---
+    log_message "INFO" "Restarting Synapse to apply changes..."
+    docker compose -f "$SYNAPSE_BASE_DIR/docker-compose.yml" restart synapse || {
+        log_message "WARN" "Failed to restart Synapse. Please restart manually to apply changes."
+    }
+
     # --- Start the container ---
     log_message "INFO" "Starting mautrix-bluesky container..."
-    docker compose -f "$SYNAPSE_BASE_DIR/docker-compose.yml" up -d || {
+    docker compose -f "$SYNAPSE_BASE_DIR/docker-compose.yml" up -d mautrix-bluesky || {
         log_message "ERROR" "Failed to start mautrix-bluesky container."
         return
     }
@@ -1866,9 +1903,15 @@ EOF
     log_message "INFO" "Updating $SYNAPSE_HOMESERVER_YAML..."
     add_registration_to_homeserver "$container_registration_path" "$bridge_name"
 
+    # --- Restart Synapse to Apply Changes ---
+    log_message "INFO" "Restarting Synapse to apply changes..."
+    docker compose -f "$SYNAPSE_BASE_DIR/docker-compose.yml" restart synapse || {
+        log_message "WARN" "Failed to restart Synapse. Please restart manually to apply changes."
+    }
+
     # --- Start the container ---
     log_message "INFO" "Starting mautrix-slack container..."
-    docker compose -f "$SYNAPSE_BASE_DIR/docker-compose.yml" up -d || {
+    docker compose -f "$SYNAPSE_BASE_DIR/docker-compose.yml" up -d mautrix-slack || {
         log_message "ERROR" "Failed to start mautrix-slack container."
         return
     }
@@ -2075,9 +2118,15 @@ EOF
     log_message "INFO" "Updating $SYNAPSE_HOMESERVER_YAML..."
     add_registration_to_homeserver "$container_registration_path" "$bridge_name"
 
+    # --- Restart Synapse to Apply Changes ---
+    log_message "INFO" "Restarting Synapse to apply changes..."
+    docker compose -f "$SYNAPSE_BASE_DIR/docker-compose.yml" restart synapse || {
+        log_message "WARN" "Failed to restart Synapse. Please restart manually to apply changes."
+    }
+
     # --- Start the container ---
     log_message "INFO" "Starting mautrix-googlechat container..."
-    docker compose -f "$SYNAPSE_BASE_DIR/docker-compose.yml" up -d || {
+    docker compose -f "$SYNAPSE_BASE_DIR/docker-compose.yml" up -d mautrix-googlechat || {
         log_message "ERROR" "Failed to start mautrix-googlechat container."
         return
     }
@@ -2284,9 +2333,15 @@ EOF
     log_message "INFO" "Updating $SYNAPSE_HOMESERVER_YAML..."
     add_registration_to_homeserver "$container_registration_path" "$bridge_name"
 
+    # --- Restart Synapse to Apply Changes ---
+    log_message "INFO" "Restarting Synapse to apply changes..."
+    docker compose -f "$SYNAPSE_BASE_DIR/docker-compose.yml" restart synapse || {
+        log_message "WARN" "Failed to restart Synapse. Please restart manually to apply changes."
+    }
+
     # --- Start the container ---
     log_message "INFO" "Starting mautrix-gmessages container..."
-    docker compose -f "$SYNAPSE_BASE_DIR/docker-compose.yml" up -d || {
+    docker compose -f "$SYNAPSE_BASE_DIR/docker-compose.yml" up -d mautrix-gmessages || {
         log_message "ERROR" "Failed to start mautrix-gmessages container."
         return
     }
@@ -2493,9 +2548,15 @@ EOF
     log_message "INFO" "Updating $SYNAPSE_HOMESERVER_YAML..."
     add_registration_to_homeserver "$container_registration_path" "$bridge_name"
 
+    # --- Restart Synapse to Apply Changes ---
+    log_message "INFO" "Restarting Synapse to apply changes..."
+    docker compose -f "$SYNAPSE_BASE_DIR/docker-compose.yml" restart synapse || {
+        log_message "WARN" "Failed to restart Synapse. Please restart manually to apply changes."
+    }
+
     # --- Start the container ---
     log_message "INFO" "Starting mautrix-gvoice container..."
-    docker compose -f "$SYNAPSE_BASE_DIR/docker-compose.yml" up -d || {
+    docker compose -f "$SYNAPSE_BASE_DIR/docker-compose.yml" up -d mautrix-gvoice || {
         log_message "ERROR" "Failed to start mautrix-gvoice container."
         return
     }
