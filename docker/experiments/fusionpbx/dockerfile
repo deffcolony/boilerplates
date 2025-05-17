@@ -1,27 +1,16 @@
-# Use Debian 11 as the base image
-FROM debian:11
+FROM debian:12
 
-# Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Update and install necessary packages
-RUN apt-get update && apt-get install -y wget
+RUN apt-get update && \
+    apt-get install -y wget systemd ca-certificates sudo && \
+    apt-get clean
 
-# Run the FusionPBX pre-installation script
-RUN wget -O - https://raw.githubusercontent.com/fusionpbx/fusionpbx-install.sh/master/debian/pre-install.sh | sh
+# Install FusionPBX using the official install script
+RUN wget -O - https://raw.githubusercontent.com/fusionpbx/fusionpbx-install.sh/master/debian/pre-install.sh | bash \
+    && cd /usr/src/fusionpbx-install.sh/debian && bash install.sh
 
-# Change working directory to /usr/src/fusionpbx-install.sh/debian
-WORKDIR /usr/src/fusionpbx-install.sh/debian
+# Expose relevant ports
+EXPOSE 80 443 5060-5061/udp 5080-5081/udp 16384-32768/udp
 
-# Run the FusionPBX installation script
-RUN ./install.sh
-
-# Clean up after installation
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-# Expose necessary ports
-# OLD EXPOSE 80 443 5060 5061 16384-32768/udp
-EXPOSE 80 443 5060-5091/udp 16384-32768/udp
-
-# Start the services needed for FusionPBX
-#CMD [ "service", "freeswitch", "start" ]
+CMD ["/sbin/init"]
